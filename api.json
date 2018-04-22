@@ -1,0 +1,324 @@
+{
+    "root": "api/v1/",
+    "errors": {
+        "401": [
+            "action is not authorised",
+            "no token supplied"
+        ],
+        "403": ["access forbidden"]
+    },
+    "routes": {
+        "accounts": {
+            "methods": {
+                "post": {
+                    "payload": {
+                        "email": "string:email",
+                        "password": "string"
+                    },
+                    "responses": {
+                        "201": "models.account"
+                    },
+                    "errors": {
+                        "400": [
+                            "email already in use",
+                            "no email supplied",
+                            "no password supplied"
+                        ]
+                    }
+                }
+            },
+            "routes": {
+                "{id}": {
+                    "scopes": ["account.view"],
+                    "methods": {
+                        "get": {
+                            "scopes": ["account.view"],
+                            "payload": null,
+                            "responses": {
+                                "200": "models.account"
+                            }
+                        },
+                        "put|patch": {
+                            "scopes": ["account.edit"],
+                            "payload": "models.account",
+                            "responses": {
+                                "200": "models.account"
+                            }
+                        },
+                        "delete": {
+                            "scopes": ["account.delete"],
+                            "payload": "models.account",
+                            "responses": {
+                                "204": null
+                            }
+                        }
+                    },
+                    "routes": {
+                        "managers": {
+                            "methods": {
+                                "get": {
+                                    "scopes": ["account.view"],
+                                    "payload": null,
+                                    "responses": {
+                                        "200": ["models.account"]
+                                    }
+                                },
+                                "post": {
+                                    "scopes": ["account.edit"],
+                                    "payload": {
+                                        "email": "string"
+                                    },
+                                    "responses": {
+                                        "201": "models.account"
+                                    },
+                                    "errors": {
+                                        "400": [
+                                            "no email supplied",
+                                            "you are signed with this email"
+                                        ]
+                                    }
+                                }
+                            },
+                            "routes": {
+                                "{id}": {
+                                    "methods": {
+                                        "delete": {
+                                            "scopes": ["account.edit"],
+                                            "payload": null,
+                                            "responses": {
+                                                "204": null
+                                            }
+                                        }
+                                    },
+                                    "errors": {
+                                        "404": [
+                                            "managed account not found"
+                                        ]
+                                    }
+                                }
+                            }
+                        },
+                        "managed": {
+                            "methods": {
+                                "get": {
+                                    "payload": null,
+                                    "responses": {
+                                        "200": ["models.account"]
+                                    }
+                                },
+                                "post": {
+                                    "scopes": ["account.edit"],
+                                    "payload": {
+                                        "email": "string"
+                                    },
+                                    "responses": {
+                                        "201": "models.account"
+                                    },
+                                    "errors": "..managers(post).errors"
+                                }
+                            },
+                            "routes": {
+                                "{id}": {
+                                    "methods": {
+                                        "scopes": ["account.edit"],
+                                        "delete": {
+                                            "payload": null,
+                                            "responses": {
+                                                "204": null
+                                            }
+                                        }
+                                    },
+                                    "errors": "...managers.{id}.errors"
+                                }
+                            }
+                        },
+                        "sessions": {
+                            "methods": {
+                                "get": {
+                                    "payload": null,
+                                    "responses": ["models.session"]
+                                },
+                                "post": {
+                                    "scopes": ["account.edit", "account.manage"],
+                                    "payload": "models.session",
+                                    "responses": "models.session",
+                                    "errors": {
+                                        "400": [
+                                            "no date supplied",
+                                            "no time supplied",
+                                            "no distance given",
+                                            "invalid date given",
+                                            "invalid time given",
+                                            "invalid distance given"
+                                        ]
+                                    }
+                                }
+                            },
+                            "routes": {
+                                "{id}": {
+                                    "methods": {
+                                        "get": {
+                                            "payload": null,
+                                            "responses": "models.session"
+                                        },
+                                        "put|patch": {
+                                            "payload": "models.session",
+                                            "responses": "models.session",
+                                            "errors": "..(post).errors"
+                                        },
+                                        "delete": {
+                                            "payload": null,
+                                            "responses": {
+                                                "204": null
+                                            }
+                                        }
+                                    },
+                                    "errors": {
+                                        "404": ["session not found"]
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "errors": {
+                        "404": ["account not found"]
+                    }
+                }
+            }
+        },
+        "auth": {
+            "errors": {
+                "400": [
+                    "invalid credentials"
+                ]
+            },
+            "routes": {
+                "login": {
+                    "methods": {
+                        "post": {
+                            "payload": {
+                                "email": "string:email",
+                                "password": "string"
+                            },
+                            "responses": {
+                                "200": "models.auth"
+                            },
+                            "errors": {
+                                "400": [
+                                    "no email supplied",
+                                    "no password supplied"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "reset": {
+                    "methods": {
+                        "get": {
+                            "payload": {
+                                "email": "string:email"
+                            },
+                            "responses": {
+                                "200": "string(response code sent)"
+                            }
+                        },
+                        "post": {
+                            "payload": {
+                                "email": "string:email",
+                                "code": "string",
+                                "new_password": "string"
+                            },
+                            "responses": {
+                                "200": "string(password reset successful)"
+                            },
+                            "errors": {
+                                "400": [
+                                    "no email supplied"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "client": {
+                    "methods": {
+                        "post": {
+                            "payload": {
+                                "key": "string:email",
+                                "secret": "string"
+                            },
+                            "responses": {
+                                "200": "string"
+                            },
+                            "errors": {
+                                "400": [
+                                    "no key supplied",
+                                    "no secret supplied"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "code": {
+                    "scopes": ["account.edit"],
+                    "methods": {
+                        "post": {
+                            "payload": {
+                                "user": "integer:unsigned",
+                                "code": "string"
+                            },
+                            "responses": {
+                                "200": "models.auth"
+                            },
+                            "errors": {
+                                "400": [
+                                    "no user supplied",
+                                    "no code supplied"
+                                ]
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "models": {
+        "auth": {
+            "id": "integer:unsigned:primary",
+            "email": "string",
+            "token": "string",
+            "code": "string:nullable",
+            "owner": "string:nullable",
+            "scopes": [],
+            "date_created": "datetime"
+        },
+        "account": {
+            "id": "integer:unsigned:primary",
+            "name": "string",
+            "email": "string",
+            "password": "string",
+            "reset_code": "string:nullable"
+        },
+        "session": {
+            "id": "integer:unsigned:primary",
+            "date_created": "datetime",
+            "length_time": "integer:unsigned",
+            "length_distance": "integer:unsigned",
+            "date_updated": "datetime"
+        }
+    },
+    "scopes": {
+        "open": [],
+        "account": {
+            "view": ["open"],
+            "edit": ["account.view"],
+            "delete": ["account.view"],
+            "manage": ["account.view"]
+        },
+        "session": {
+            "create": ["account.view", "..account.view"],
+            "view": ["account.view", ".view"],
+            "edit": ["session.view"],
+            "delete": ["session.view"]
+        }
+    }
+}
