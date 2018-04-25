@@ -37,10 +37,7 @@ ROUTES = {
     'trips': TripViewSet,
 }
 for r, v in ROUTES.items():
-    print(r, v)
     ROUTER.register(r, v)
-
-print(ROUTER.urls)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
