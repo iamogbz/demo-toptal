@@ -284,10 +284,10 @@
     "models": {
         "auth": {
             "id": "integer:unsigned:primary",
-            "email": "string",
+            "user": "models.account",
             "token": "string",
             "code": "string:nullable",
-            "owner": "string:nullable",
+            "owner": ".account",
             "scopes": [],
             "date_created": "datetime"
         },
@@ -300,6 +300,7 @@
         },
         "session": {
             "id": "integer:unsigned:primary",
+            "owner": "model.account",
             "date_created": "datetime",
             "length_time": "integer:unsigned",
             "length_distance": "integer:unsigned",
