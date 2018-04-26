@@ -112,6 +112,7 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 10,
 }
 
+LOGIN_REDIRECT_URL = '../accounts/profile'
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.0/topics/i18n/

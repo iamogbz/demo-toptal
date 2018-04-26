@@ -39,7 +39,7 @@ class AccountSerializer(ModelSerializer):
     """
     class Meta:
         model = Account
-        fields = '__all__'
+        fields = ('id', 'username', 'email', 'first_name', 'last_name')
 
 
 class TripSerializer(ModelSerializer):

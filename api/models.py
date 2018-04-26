@@ -31,7 +31,7 @@ class Account(User):
     """
     User account model
     """
-    reset_code = models.TextField()
+    reset_code = models.TextField(null=True)
 
     class Meta:
         permissions = (
