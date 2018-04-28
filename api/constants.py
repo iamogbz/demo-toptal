@@ -15,6 +15,7 @@ class PermissionCodes:
         EDIT = 'change_account'
         CREATE = 'create_account'
         DELETE = 'delete_account'
+        MANAGE = 'manage_account'
 
     class Auth:
         """

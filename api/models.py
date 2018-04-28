@@ -37,7 +37,7 @@ class Account(User):
     class Meta:
         permissions = (
             (PermissionCodes.Account.VIEW, "Can view account"),
-            (PermissionCodes.Account.VIEW, "Can manage account"),
+            (PermissionCodes.Account.MANAGE, "Can manage account"),
         )
 
 
