@@ -1,3 +1,9 @@
+[MASTER]
+load-plugins=pylint_django
+
+[DESIGN]
+max-parents=99
+min-public-methods=0
+
 [pre-commit-hook]
-params=--load-plugins=pylint_django
 limit=10.0

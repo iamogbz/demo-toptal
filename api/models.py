@@ -6,6 +6,7 @@ from django.contrib.auth.models import (
     User,
     Permission,
 )
+from api.constants import PermissionCodes
 
 
 class Scope(Permission):
@@ -23,7 +24,7 @@ class Scope(Permission):
 
     class Meta:
         permissions = (
-            ("view_scope", "Can view scope"),
+            (PermissionCodes.Scope.VIEW, "Can view scope"),
         )
 
 
@@ -35,8 +36,8 @@ class Account(User):
 
     class Meta:
         permissions = (
-            ("view_account", "Can view account"),
-            ("manage_account", "Can manage account"),
+            (PermissionCodes.Account.VIEW, "Can view account"),
+            (PermissionCodes.Account.VIEW, "Can manage account"),
         )
 
 
@@ -88,7 +89,7 @@ class Auth(models.Model):
 
     class Meta:
         permissions = (
-            ("view_auth", "Can view auth"),
+            (PermissionCodes.Auth.VIEW, "Can view auth"),
         )
 
 
@@ -104,5 +105,5 @@ class Trip(models.Model):
 
     class Meta:
         permissions = (
-            ("view_trip", "Can view trip"),
+            (PermissionCodes.Trip.VIEW, "Can view trip"),
         )

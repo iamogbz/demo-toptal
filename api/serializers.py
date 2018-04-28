@@ -1,49 +1,44 @@
 """
 Define model serializers here
 """
-from rest_framework.serializers import ModelSerializer
+from rest_framework import serializers
 
-from api.models import (
-    Account,
-    Auth,
-    Trip,
-    Scope,
-)
+from api import models
 
 
-class ScopeSerializer(ModelSerializer):
+class ScopeSerializer(serializers.ModelSerializer):
     """
     Authorisation scope serializer
     """
 
     class Meta:
-        model = Scope
+        model = models.Scope
         fields = ('id', 'name', 'codename', 'includes')
 
 
-class AuthSerializer(ModelSerializer):
+class AuthSerializer(serializers.ModelSerializer):
     """
     Authentication details serializer
     """
     class Meta:
-        model = Auth
+        model = models.Auth
         fields = ('id', 'token', 'user', 'owner',
                   'scopes', 'granted', 'date_created')
 
 
-class AccountSerializer(ModelSerializer):
+class AccountSerializer(serializers.ModelSerializer):
     """
     Account details serializer
     """
     class Meta:
-        model = Account
+        model = models.Account
         fields = ('id', 'username', 'email', 'first_name', 'last_name')
 
 
-class TripSerializer(ModelSerializer):
+class TripSerializer(serializers.ModelSerializer):
     """
     Trip session serializer
     """
     class Meta:
-        model = Trip
+        model = models.Trip
         fields = '__all__'
