@@ -58,6 +58,7 @@ class Auth(models.Model):
     )
     token = models.TextField()
     code = models.TextField(null=True)
+    active = models.BooleanField(default=False)
     scopes = models.ManyToManyField(Scope)
     date_created = models.DateField(auto_now_add=True)
 
