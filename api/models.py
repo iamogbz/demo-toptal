@@ -57,7 +57,7 @@ class Auth(models.Model):
     )
     token = models.TextField()
     code = models.TextField(null=True)
-    scope = models.ManyToManyField(Scope)
+    scopes = models.ManyToManyField(Scope)
     date_created = models.DateField(auto_now_add=True)
 
     class Meta:
