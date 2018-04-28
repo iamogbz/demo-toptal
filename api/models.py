@@ -60,6 +60,32 @@ class Auth(models.Model):
     scopes = models.ManyToManyField(Scope)
     date_created = models.DateField(auto_now_add=True)
 
+    @property
+    def granted(self):
+        """
+        All scopes implicitly granted to this authorisation
+        """
+        return Auth.flatten_scopes(self.scopes.values_list('id', flat=True))
+
+    @staticmethod
+    def flatten_scopes(scope_ids):
+        """
+        Take list of scope ids and flatten includes
+        into single set of implicit scope permissions
+        """
+        pancake = set()
+        queue = set(scope_ids)
+        while queue:
+            sid = queue.pop()
+            if sid not in pancake:
+                try:
+                    scope = Scope.objects.get(pk=sid)
+                    pancake.add(sid)
+                    queue.update(scope.includes.values_list('id', flat=True))
+                except Scope.DoesNotExist:
+                    pass
+        return pancake
+
     class Meta:
         permissions = (
             ("view_auth", "Can view auth"),

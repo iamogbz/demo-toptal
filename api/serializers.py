@@ -1,10 +1,7 @@
 """
 Define model serializers here
 """
-from rest_framework.serializers import (
-    HyperlinkedModelSerializer,
-    ModelSerializer,
-)
+from rest_framework.serializers import ModelSerializer
 
 from api.models import (
     Account,
@@ -21,7 +18,7 @@ class ScopeSerializer(ModelSerializer):
 
     class Meta:
         model = Scope
-        fields = '__all__'
+        fields = ('id', 'name', 'codename', 'includes')
 
 
 class AuthSerializer(ModelSerializer):
@@ -30,7 +27,8 @@ class AuthSerializer(ModelSerializer):
     """
     class Meta:
         model = Auth
-        fields = '__all__'
+        fields = ('id', 'token', 'user', 'owner',
+                  'scopes', 'granted', 'date_created')
 
 
 class AccountSerializer(ModelSerializer):
