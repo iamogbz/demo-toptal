@@ -35,6 +35,19 @@ class Account(User):
     """
     reset_code = models.TextField(null=True)
 
+    @property
+    def managers(self):
+        """
+        List of accounts managing this user
+        """
+        scope_id = Scope.objects.get(
+            codename=PermissionCodes.Account.MANAGE,
+        ).id
+        return [auth.owner.id for auth in Auth.objects.filter(
+            user=self,
+            active=True,
+        ) if scope_id in auth.granted]
+
     class Meta:
         permissions = (
             (PermissionCodes.Account.VIEW, "Can view account"),
