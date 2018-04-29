@@ -86,15 +86,12 @@ class AccountViewSet(viewsets.ModelViewSet):
             response_status = status.HTTP_200_OK
         elif method in [Methods.POST, Methods.DELETE]:
             mgr_email = request.data['email']
-            # if email is not None or empty string
             if mgr_email:
                 if user.email == mgr_email:
                     utils.raise_api_exc(
                         APIException('you are signed with this email'),
                         status.HTTP_400_BAD_REQUEST,
                     )
-
-                # check if account email exists
                 mgr = get_object_or_404(models.Account, email=mgr_email)
                 if method == Methods.POST:
                     if _auth_manager(user=user, mgr=mgr):
@@ -128,9 +125,7 @@ class AccountViewSet(viewsets.ModelViewSet):
             response_status = status.HTTP_200_OK
         elif method == Methods.POST:
             auth_code = request.data['code']
-            # if auth_code is not None or empty string
             if auth_code:
-                # check if auth code is valid
                 auth = get_object_or_404(
                     models.Auth, code=auth_code, owner_id=mgr.id)
                 auth.code = None
@@ -145,15 +140,12 @@ class AccountViewSet(viewsets.ModelViewSet):
                 )
         elif method == Methods.DELETE:
             usr_email = request.data['email']
-            # if email is not None or empty string
             if usr_email:
                 if mgr.email == usr_email:
                     utils.raise_api_exc(
                         APIException('you are signed with this email'),
                         status.HTTP_400_BAD_REQUEST,
                     )
-
-                # check if account email exists
                 user = get_object_or_404(models.Account, email=usr_email)
                 if _deauth_manager(user=user, mgr=mgr):
                     response_status = status.HTTP_204_NO_CONTENT
@@ -201,8 +193,7 @@ def _auth_manager(user, mgr):
 
 def _deauth_manager(user, mgr):
     """
-    Deauthorise manager on user account
-    :raises APIException: if user was not authorised
+    Deauthorise all manager auth on user account
     """
     # deauth all previous
     return models.Auth.objects.filter(owner=mgr, user=user).update(
