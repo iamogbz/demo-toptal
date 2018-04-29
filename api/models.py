@@ -43,10 +43,23 @@ class Account(User):
         mgr_scope = Scope.objects.get(
             codename=PermissionCodes.Account.MANAGE,
         )
-        return [auth.owner.id for auth in mgr_scope.auths.filter(
+        return {auth.owner.id for auth in mgr_scope.auths.filter(
             user=self,
             active=True,
-        )]
+        )}
+
+    @property
+    def managing(self):
+        """
+        List of accounts this user manages
+        """
+        mgr_scope = Scope.objects.get(
+            codename=PermissionCodes.Account.MANAGE,
+        )
+        return {auth.user.id for auth in mgr_scope.auths.filter(
+            owner=self,
+            active=True,
+        )}
 
     class Meta:
         permissions = (

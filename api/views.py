@@ -112,6 +112,61 @@ class AccountViewSet(viewsets.ModelViewSet):
             status=response_status,
         )
 
+    @list_route(methods=[Methods.GET, Methods.POST, Methods.DELETE])
+    def managing(self, request, *_, **__):
+        """
+        Handle listing and updating account user is currently managing
+        """
+        mgr = models.Account.objects.get(pk=request.user.id)
+        method = request.method
+        response_data = None
+        response_status = status.HTTP_500_INTERNAL_SERVER_ERROR
+        if method == Methods.GET:
+            mngn = models.Account.objects.filter(pk__in=mgr.managing)
+            serializer = self.get_serializer(mngn, many=True)
+            response_data = serializer.data
+            response_status = status.HTTP_200_OK
+        elif method == Methods.POST:
+            auth_code = request.data['code']
+            # if auth_code is not None or empty string
+            if auth_code:
+                # check if auth code is valid
+                auth = get_object_or_404(
+                    models.Auth, code=auth_code, owner_id=mgr.id)
+                auth.code = None
+                auth.active = True
+                auth.save(update_fields=['code', 'active'])
+                response_data = self.get_serializer(auth.user).data
+                response_status = status.HTTP_200_OK
+            else:
+                utils.raise_api_exc(
+                    APIException('no authorization code supplied'),
+                    status.HTTP_400_BAD_REQUEST,
+                )
+        elif method == Methods.DELETE:
+            usr_email = request.data['email']
+            # if email is not None or empty string
+            if usr_email:
+                if mgr.email == usr_email:
+                    utils.raise_api_exc(
+                        APIException('you are signed with this email'),
+                        status.HTTP_400_BAD_REQUEST,
+                    )
+
+                # check if account email exists
+                user = get_object_or_404(models.Account, email=usr_email)
+                if _deauth_manager(user=user, mgr=mgr):
+                    response_status = status.HTTP_204_NO_CONTENT
+            else:
+                utils.raise_api_exc(
+                    APIException('no email supplied'),
+                    status.HTTP_400_BAD_REQUEST,
+                )
+        return Response(
+            data=response_data,
+            status=response_status,
+        )
+
 
 def _auth_manager(user, mgr):
     """
