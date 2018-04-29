@@ -23,8 +23,7 @@ class AuthSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Auth
         fields = (
-            'id',
-            'token', 'code',
+            'id', 'code',
             'user', 'owner',
             'scopes', 'granted',
             'active', 'date_created',

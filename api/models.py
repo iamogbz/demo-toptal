@@ -6,6 +6,7 @@ from django.contrib.auth.models import (
     User,
     Permission,
 )
+
 from api.constants import PermissionCodes
 
 
@@ -56,7 +57,6 @@ class Auth(models.Model):
         on_delete=models.SET_NULL,
         related_name="owner",
     )
-    token = models.TextField()
     code = models.TextField(null=True)
     active = models.BooleanField(default=False)
     scopes = models.ManyToManyField(Scope)
