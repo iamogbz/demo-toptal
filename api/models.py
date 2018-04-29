@@ -40,13 +40,13 @@ class Account(User):
         """
         List of accounts managing this user
         """
-        scope_id = Scope.objects.get(
+        mgr_scope = Scope.objects.get(
             codename=PermissionCodes.Account.MANAGE,
-        ).id
-        return [auth.owner.id for auth in Auth.objects.filter(
+        )
+        return [auth.owner.id for auth in mgr_scope.auths.filter(
             user=self,
             active=True,
-        ) if scope_id in auth.granted]
+        )]
 
     class Meta:
         permissions = (
@@ -72,7 +72,7 @@ class Auth(models.Model):
     )
     code = models.TextField(null=True)
     active = models.BooleanField(default=False)
-    scopes = models.ManyToManyField(Scope)
+    scopes = models.ManyToManyField(Scope, related_name='auths')
     date_created = models.DateField(auto_now_add=True)
 
     @property
