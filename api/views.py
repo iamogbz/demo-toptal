@@ -17,8 +17,11 @@ from api import (
     serializers,
     utils,
 )
-from api.constants import PermissionCodes
-from api.constants import Methods
+from api.constants import (
+    Limits,
+    Methods,
+    PermissionCodes,
+)
 
 
 class ScopeViewSet(viewsets.ModelViewSet):
@@ -170,6 +173,17 @@ def _auth_manager(user, mgr):
         utils.raise_api_exc(
             APIException('email already authorised'),
             status.HTTP_400_BAD_REQUEST
+        )
+    # check if above limit:
+    if len(mgr.managing) >= Limits.ACCOUNT_MANAGED:
+        utils.raise_api_exc(
+            APIException('account is managing more than enough'),
+            status.HTTP_406_NOT_ACCEPTABLE
+        )
+    if len(user.managers) >= Limits.ACCOUNT_MANAGER:
+        utils.raise_api_exc(
+            APIException('account has more than enough managers'),
+            status.HTTP_406_NOT_ACCEPTABLE
         )
 
     # get scope for managing user account

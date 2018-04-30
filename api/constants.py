@@ -3,6 +3,16 @@ Api constants
 """
 
 
+class Limits:
+    """
+    Api limits
+    """
+    # limit to managers
+    ACCOUNT_MANAGER = 5
+    # limit to managing
+    ACCOUNT_MANAGED = 25
+
+
 class Methods:
     """
     Http method strings
