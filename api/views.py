@@ -7,7 +7,7 @@ from rest_framework import (
     status,
     viewsets,
 )
-from rest_framework.decorators import list_route
+from rest_framework.decorators import action
 from rest_framework.exceptions import APIException
 from rest_framework.response import Response
 
@@ -50,7 +50,7 @@ class AccountViewSet(viewsets.ModelViewSet):
         permissions.JoggerPermissions,
     )
 
-    @list_route(methods=[Methods.GET, Methods.PUT])
+    @action(methods=[Methods.GET, Methods.PUT], detail=False)
     def profile(self, request, *_, **kwargs):
         """
         Handle showing and updating of tracking information
@@ -73,8 +73,11 @@ class AccountViewSet(viewsets.ModelViewSet):
 
         return response
 
-    @list_route(methods=[Methods.GET, Methods.POST, Methods.DELETE])
-    def managers(self, request, *_, **__):
+    @action(methods=[Methods.GET, Methods.POST], detail=False,
+            url_path='(?P<user_id>[0-9]+)/trips')
+    def managed_trips(self, request, user_id):
+    @action(methods=[Methods.GET, Methods.POST, Methods.DELETE], detail=False)
+    def managers(self, request):
         """
         Handle listing and adding accounts that can manage user
         """
@@ -112,8 +115,8 @@ class AccountViewSet(viewsets.ModelViewSet):
             status=response_status,
         )
 
-    @list_route(methods=[Methods.GET, Methods.POST, Methods.DELETE])
-    def managing(self, request, *_, **__):
+    @action(methods=[Methods.GET, Methods.POST, Methods.DELETE], detail=False)
+    def managing(self, request):
         """
         Handle listing and updating account user is currently managing
         """
