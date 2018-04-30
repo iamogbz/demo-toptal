@@ -98,7 +98,7 @@ class AccountViewSet(viewsets.ModelViewSet):
                 trips, many=True, context={'request': request})
             response = self.get_paginated_response(serializer.data)
         else:
-            result = create_trip(acc, request.data, request)
+            result = create_trip(acc, request.data.copy(), request)
             if result.data:
                 response = Response(result.data,
                                     status=status.HTTP_201_CREATED)
@@ -260,7 +260,7 @@ class TripViewSet(viewsets.ModelViewSet):
     )
 
     def create(self, request, *_, **___):
-        result = create_trip(request.user, request.data, request)
+        result = create_trip(request.user, request.data.copy(), request)
         if result.data:
             return Response(result.data, status=status.HTTP_201_CREATED)
         return Response(result.errors, status=status.HTTP_400_BAD_REQUEST)
