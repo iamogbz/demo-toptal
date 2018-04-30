@@ -1,6 +1,7 @@
 """
 Api app views
 """
+from django.http import Http404
 from django.shortcuts import get_object_or_404
 from django.utils.crypto import get_random_string
 from rest_framework import (
@@ -50,6 +51,12 @@ class AccountViewSet(viewsets.ModelViewSet):
         permissions.JoggerPermissions,
     )
 
+    def get_serializer_class(self):
+        print(self.action)
+        if self.action == 'managed_trips':
+            return serializers.TripSerializer
+        return super().get_serializer_class()
+
     @action(methods=[Methods.GET, Methods.PUT], detail=False)
     def profile(self, request, *_, **kwargs):
         """
@@ -76,6 +83,30 @@ class AccountViewSet(viewsets.ModelViewSet):
     @action(methods=[Methods.GET, Methods.POST], detail=False,
             url_path='(?P<user_id>[0-9]+)/trips')
     def managed_trips(self, request, user_id):
+        """
+        Handle viewing and adding of managed user jogging sessions
+        """
+        print(self.action)
+        mgr = request.user
+        acc = get_object_or_404(models.Account, pk=user_id)
+        if mgr.id != acc.id and mgr.id not in acc.managers:
+            raise Http404()
+        if request.method == 'GET':
+            trips = self.paginate_queryset(
+                models.Trip.objects.filter(account_id=acc.id))
+            serializer = self.get_serializer(
+                trips, many=True, context={'request': request})
+            response = self.get_paginated_response(serializer.data)
+        else:
+            result = create_trip(acc, request.data, request)
+            if result.data:
+                response = Response(result.data,
+                                    status=status.HTTP_201_CREATED)
+            else:
+                response = Response(result.errors,
+                                    status=status.HTTP_400_BAD_REQUEST)
+        return response
+
     @action(methods=[Methods.GET, Methods.POST, Methods.DELETE], detail=False)
     def managers(self, request):
         """
@@ -224,3 +255,31 @@ class TripViewSet(viewsets.ModelViewSet):
     """
     queryset = models.Trip.objects.all()
     serializer_class = serializers.TripSerializer
+    permission_classes = (
+        permissions.JoggerPermissions,
+    )
+
+    def create(self, request, *_, **___):
+        result = create_trip(request.user, request.data, request)
+        if result.data:
+            return Response(result.data, status=status.HTTP_201_CREATED)
+        return Response(result.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def get_queryset(self):
+        return models.Trip.objects.filter(account_id=self.request.user.id)
+
+
+def create_trip(account, data, request=None):
+    """
+    Create trip on account using data
+    """
+    for k in ['account', 'account_id']:
+        if k in data:
+            del data[k]
+    data['account'] = account
+    serializer = serializers.TripSerializer(
+        data=data, context={'request': request})
+    if serializer.is_valid():
+        serializer.save()
+        return serializer
+    return None
