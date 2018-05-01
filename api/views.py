@@ -55,7 +55,6 @@ class AccountViewSet(viewsets.ModelViewSet):
     )
 
     def get_serializer_class(self):
-        print(self.action)
         if self.action == 'managed_trips':
             return serializers.TripSerializer
         return super().get_serializer_class()
@@ -89,7 +88,6 @@ class AccountViewSet(viewsets.ModelViewSet):
         """
         Handle viewing and adding of managed user jogging sessions
         """
-        print(self.action)
         mgr = request.user
         acc = get_object_or_404(models.Account, pk=user_id)
         if all([

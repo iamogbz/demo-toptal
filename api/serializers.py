@@ -46,7 +46,6 @@ class TripSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         request = self.context['request']
-        print(request.user)
         for k in ['account', 'account_id']:
             if k in validated_data:
                 del validated_data[k]
