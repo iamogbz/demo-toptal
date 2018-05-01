@@ -43,6 +43,16 @@ class TripSerializer(serializers.ModelSerializer):
     """
     Trip session serializer
     """
+
+    def create(self, validated_data):
+        request = self.context['request']
+        print(request.user)
+        for k in ['account', 'account_id']:
+            if k in validated_data:
+                del validated_data[k]
+        validated_data['account_id'] = request.user.id
+        return models.Trip.objects.create(**validated_data)
+
     class Meta:
         model = models.Trip
-        fields = '__all__'
+        fields = ('date_created', 'length_distance', 'length_time',)
