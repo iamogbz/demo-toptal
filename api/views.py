@@ -39,6 +39,9 @@ class AuthViewSet(viewsets.ModelViewSet):
     """
     queryset = models.Auth.objects.all()
     serializer_class = serializers.AuthSerializer
+    permission_classes = (
+        permissions.JoggerPermissions,
+    )
 
 
 class AccountViewSet(viewsets.ModelViewSet):
@@ -89,7 +92,11 @@ class AccountViewSet(viewsets.ModelViewSet):
         print(self.action)
         mgr = request.user
         acc = get_object_or_404(models.Account, pk=user_id)
-        if mgr.id != acc.id and mgr.id not in acc.managers:
+        if all([
+                mgr.id != acc.id,
+                not mgr.is_superuser,
+                mgr.id not in acc.managers,
+        ]):
             raise Http404()
         if request.method == 'GET':
             trips = self.paginate_queryset(
