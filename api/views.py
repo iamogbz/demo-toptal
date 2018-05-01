@@ -1,15 +1,24 @@
 """
 Api app views
 """
-from django.http import Http404
+from django.contrib.auth.hashers import (
+    check_password,
+    make_password,
+)
+from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.utils.crypto import get_random_string
 from rest_framework import (
     status,
     viewsets,
 )
-from rest_framework.decorators import action
+from rest_framework.decorators import (
+    action,
+    api_view,
+    permission_classes,
+)
 from rest_framework.exceptions import APIException
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from api import (
@@ -23,6 +32,75 @@ from api.constants import (
     Methods,
     PermissionCodes,
 )
+
+
+@api_view([Methods.POST])
+@permission_classes([AllowAny])
+def auth_user(request):
+    """
+    Authenticate user using email and password
+    """
+    if request.method != Methods.POST:
+        utils.raise_api_exc(
+            APIException('{} not allowed'.format(request.method)),
+            status.HTTP_405_METHOD_NOT_ALLOWED,
+        )
+    data = request.data
+    print(data)
+    if utils.has_required(data.keys(), {'email', 'password'}):
+        user = get_object_or_404(models.Account, email=data['email'])
+        if user.check_password(data['password']):
+            return JsonResponse(serializers.AccountSerializer(user).data)
+        utils.raise_api_exc(
+            APIException('invalid credentials'),
+            status.HTTP_400_BAD_REQUEST,
+        )
+    utils.raise_api_exc(
+        APIException('incomplete information'),
+        status.HTTP_400_BAD_REQUEST,
+    )
+
+
+@api_view([Methods.GET, Methods.POST])
+@permission_classes([AllowAny])
+def auth_reset(request):
+    """
+    Control user account password reset
+    """
+    if request.method == Methods.GET:
+        email = request.query_params.get('email')
+        if email:
+            user = get_object_or_404(models.Account, email=email)
+            user.reset_code = make_password(get_random_string(128))
+            user.save()
+            # TODO send reset code to email
+            return Response(data={
+                'detail': 'reset code has been sent to your email',
+            }, status=status.HTTP_200_OK)
+    elif request.method == Methods.POST:
+        data = request.data
+        if utils.has_required(data.keys(), {'email', 'code', 'password'}):
+            user = get_object_or_404(models.Account, email=data['email'])
+            # TODO if check_password(data['code'], user.reset_code):
+            if True:
+                user.reset_code = None
+                user.set_password(data['password'])
+                user.save()
+                return Response(data={
+                    'detail': 'password reset successfully',
+                }, status=status.HTTP_200_OK)
+            utils.raise_api_exc(
+                APIException('invalid reset code'),
+                status.HTTP_400_BAD_REQUEST,
+            )
+        utils.raise_api_exc(
+            APIException('incomplete reset details'),
+            status.HTTP_400_BAD_REQUEST,
+        )
+    utils.raise_api_exc(
+        APIException('{} not allowed'.format(request.method)),
+        status.HTTP_405_METHOD_NOT_ALLOWED,
+    )
 
 
 class ScopeViewSet(viewsets.ModelViewSet):
@@ -239,8 +317,7 @@ def _auth_manager(user, mgr):
     )
     auth.scopes.set({mgr_scope})
     auth.save()
-    # Send notice to account to complete authorisation
-    # Only return True if auth created
+    # TODO Send notice to account to complete authorisation
     return True
 
 

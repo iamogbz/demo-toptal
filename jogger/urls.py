@@ -21,8 +21,9 @@ from django.urls import (
 from django.contrib import admin
 from rest_framework.routers import DefaultRouter
 
-
 from api.views import (
+    auth_reset,
+    auth_user,
     AccountViewSet,
     AuthViewSet,
     ScopeViewSet,
@@ -33,7 +34,7 @@ ROUTER = DefaultRouter(trailing_slash=False)
 ROUTES = {
     'scopes': ScopeViewSet,
     'accounts': AccountViewSet,
-    'auth': AuthViewSet,
+    'auths': AuthViewSet,
     'trips': TripViewSet,
 }
 for r, v in ROUTES.items():
@@ -46,4 +47,6 @@ urlpatterns = [
         'rest_framework.urls',
         namespace='rest_framework'
     )),
+    path('api/auth/reset', auth_reset, name='auth-reset'),
+    path('api/auth/user', auth_user, name='auth-user'),
 ]
