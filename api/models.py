@@ -45,7 +45,7 @@ class Account(User):
         :param plain_code: plain text code to encode
         :param save: flag controlling auto commit
         """
-        self.reset_code(make_password(plain_code))
+        self.reset_code = make_password(plain_code)
         if save:
             self.save()
 
@@ -150,6 +150,11 @@ class Auth(models.Model):
 class Trip(models.Model):
     """
     An exercise session model
+    :param account: user account
+    :param date_created: timestamp of date trip added
+    :param length_time: total time of trip in seconds
+    :param length_distance: total distance of trip in metres
+    :param date_updated: timestamp of last edit made
     """
     account = models.ForeignKey(Account, on_delete=models.CASCADE)
     date_created = models.DateField(auto_now_add=True)
