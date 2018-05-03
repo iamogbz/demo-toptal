@@ -1,10 +1,6 @@
 """
 Api app views
 """
-from django.contrib.auth.hashers import (
-    check_password,
-    make_password,
-)
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.utils.crypto import get_random_string
@@ -71,8 +67,8 @@ def auth_reset(request):
         email = request.query_params.get('email')
         if email:
             user = get_object_or_404(models.Account, email=email)
-            user.reset_code = make_password(get_random_string(128))
-            user.save()
+            reset_code = get_random_string(128)
+            user.set_reset_code(reset_code, True)
             # TODO send reset code to email
             return Response(data={
                 'detail': 'reset code has been sent to your email',
@@ -81,8 +77,8 @@ def auth_reset(request):
         data = request.data
         if utils.has_required(data.keys(), {'email', 'code', 'password'}):
             user = get_object_or_404(models.Account, email=data['email'])
-            if check_password(data['code'], user.reset_code):
-                user.reset_code = None
+            if user.check_reset_code(data['code']):
+                user.set_reset_code(None)
                 user.set_password(data['password'])
                 user.save()
                 return Response(data={

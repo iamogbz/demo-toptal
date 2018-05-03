@@ -1,6 +1,10 @@
 """
 Jogger api model definitions
 """
+from django.contrib.auth.hashers import (
+    check_password,
+    make_password,
+)
 from django.db import models
 from django.contrib.auth.models import (
     User,
@@ -34,6 +38,24 @@ class Account(User):
     User account model
     """
     reset_code = models.TextField(null=True)
+
+    def set_reset_code(self, plain_code, save=False):
+        """
+        Set account reset code
+        :param plain_code: plain text code to encode
+        :param save: flag controlling auto commit
+        """
+        self.reset_code(make_password(plain_code))
+        if save:
+            self.save()
+
+    def check_reset_code(self, plain_code):
+        """
+        Check account reset code
+        :param plain_code: the plain text reset code to check
+        :returns bool: True if the reset code match
+        """
+        return check_password(plain_code, self.reset_code)
 
     @staticmethod
     def get_manage_scope():
