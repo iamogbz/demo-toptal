@@ -1,1 +1,163 @@
-[{"model": "api.scope", "pk": 19, "fields": {"includes": []}}, {"model": "api.scope", "pk": 20, "fields": {"includes": [22]}}, {"model": "api.scope", "pk": 21, "fields": {"includes": [20]}}, {"model": "api.scope", "pk": 23, "fields": {"includes": [22]}}, {"model": "api.scope", "pk": 22, "fields": {"includes": []}}, {"model": "api.scope", "pk": 32, "fields": {"includes": [22]}}, {"model": "api.scope", "pk": 33, "fields": {"includes": [35]}}, {"model": "api.scope", "pk": 34, "fields": {"includes": [35]}}, {"model": "api.scope", "pk": 35, "fields": {"includes": [22]}}, {"model": "api.account", "pk": 1, "fields": {"reset_code": null, "groups": [], "user_permissions": []}}, {"model": "api.account", "pk": 2, "fields": {"reset_code": null, "groups": [], "user_permissions": []}}, {"model": "api.account", "pk": 3, "fields": {"reset_code": null, "groups": [], "user_permissions": []}}, {"model": "api.auth", "pk": 1, "fields": {"user": 3, "owner": 2, "token": "testtoken", "code": "onetimecode", "date_created": "2018-04-27", "scopes": [23]}}]
+[{
+    "model": "api.scope",
+    "pk": 19,
+    "fields": {
+        "includes": []
+    }
+}, {
+    "model": "api.scope",
+    "pk": 20,
+    "fields": {
+        "includes": [22]
+    }
+}, {
+    "model": "api.scope",
+    "pk": 21,
+    "fields": {
+        "includes": [20]
+    }
+}, {
+    "model": "api.scope",
+    "pk": 23,
+    "fields": {
+        "includes": [22]
+    }
+}, {
+    "model": "api.scope",
+    "pk": 22,
+    "fields": {
+        "includes": []
+    }
+}, {
+    "model": "api.scope",
+    "pk": 32,
+    "fields": {
+        "includes": [22]
+    }
+}, {
+    "model": "api.scope",
+    "pk": 33,
+    "fields": {
+        "includes": [35]
+    }
+}, {
+    "model": "api.scope",
+    "pk": 34,
+    "fields": {
+        "includes": [35]
+    }
+}, {
+    "model": "api.scope",
+    "pk": 35,
+    "fields": {
+        "includes": [22]
+    }
+}, {
+    "model": "api.account",
+    "pk": 1,
+    "fields": {
+        "reset_code": null,
+        "groups": [],
+        "user_permissions": []
+    }
+}, {
+    "model": "api.account",
+    "pk": 2,
+    "fields": {
+        "reset_code": null,
+        "groups": [],
+        "user_permissions": []
+    }
+}, {
+    "model": "api.account",
+    "pk": 3,
+    "fields": {
+        "reset_code": null,
+        "groups": [],
+        "user_permissions": []
+    }
+}, {
+    "model": "auth.user",
+    "pk": 1,
+    "fields": {
+        "password": "pbkdf2_sha256$100000$s8694bnXwVrm$r1sNznSe6lwcDLXpkCc6eW99iH9dSojTRLLZV6k0/is=",
+        "last_login": "2018-05-01T01:20:35.151Z",
+        "is_superuser": true,
+        "username": "admin",
+        "first_name": "",
+        "last_name": "",
+        "email": "admin@example.com",
+        "is_staff": true,
+        "is_active": true,
+        "date_joined": "2018-04-27T13:18:39.102Z",
+        "groups": [],
+        "user_permissions": []
+    }
+}, {
+    "model": "auth.user",
+    "pk": 2,
+    "fields": {
+        "password": "pbkdf2_sha256$100000$eESNe8JoX4GR$u2vmh5Ae0GET2TUtyMC2W+5hWus3cMLONklowOp4W9w=",
+        "last_login": "2018-05-01T02:24:22.627Z",
+        "is_superuser": false,
+        "username": "testmanager",
+        "first_name": "",
+        "last_name": "",
+        "email": "testmanager@example.com",
+        "is_staff": false,
+        "is_active": true,
+        "date_joined": "2018-04-28T13:29:22.303Z",
+        "groups": [],
+        "user_permissions": []
+    }
+}, {
+    "model": "auth.user",
+    "pk": 3,
+    "fields": {
+        "password": "pbkdf2_sha256$100000$KG8JNvG6YwVN$7VTlnxBs7E7ONIYYOG6NYyLV3+lJCpt34kdBn5oPZ/w=",
+        "last_login": "2018-05-01T00:44:39.220Z",
+        "is_superuser": false,
+        "username": "testuser",
+        "first_name": "",
+        "last_name": "",
+        "email": "testuser@example.com",
+        "is_staff": false,
+        "is_active": true,
+        "date_joined": "2018-04-28T13:29:30.399Z",
+        "groups": [],
+        "user_permissions": []
+    }
+}, {
+    "model": "api.auth",
+    "pk": 1,
+    "fields": {
+        "user": 3,
+        "owner": 2,
+        "code": null,
+        "active": false,
+        "date_created": "2018-04-27",
+        "scopes": [23]
+    }
+}, {
+    "model": "api.auth",
+    "pk": 2,
+    "fields": {
+        "user": 3,
+        "owner": 2,
+        "code": null,
+        "active": false,
+        "date_created": "2018-04-29",
+        "scopes": [23]
+    }
+}, {
+    "model": "api.auth",
+    "pk": 3,
+    "fields": {
+        "user": 3,
+        "owner": 2,
+        "code": null,
+        "active": true,
+        "date_created": "2018-04-29",
+        "scopes": [23]
+    }
+}]

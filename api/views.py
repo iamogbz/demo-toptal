@@ -46,7 +46,6 @@ def auth_user(request):
             status.HTTP_405_METHOD_NOT_ALLOWED,
         )
     data = request.data
-    print(data)
     if utils.has_required(data.keys(), {'email', 'password'}):
         user = get_object_or_404(models.Account, email=data['email'])
         if user.check_password(data['password']):
@@ -59,6 +58,7 @@ def auth_user(request):
         APIException('incomplete information'),
         status.HTTP_400_BAD_REQUEST,
     )
+    return None
 
 
 @api_view([Methods.GET, Methods.POST])
@@ -81,8 +81,7 @@ def auth_reset(request):
         data = request.data
         if utils.has_required(data.keys(), {'email', 'code', 'password'}):
             user = get_object_or_404(models.Account, email=data['email'])
-            # TODO if check_password(data['code'], user.reset_code):
-            if True:
+            if check_password(data['code'], user.reset_code):
                 user.reset_code = None
                 user.set_password(data['password'])
                 user.save()
@@ -101,6 +100,7 @@ def auth_reset(request):
         APIException('{} not allowed'.format(request.method)),
         status.HTTP_405_METHOD_NOT_ALLOWED,
     )
+    return None
 
 
 class ScopeViewSet(viewsets.ModelViewSet):
