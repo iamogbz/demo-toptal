@@ -35,14 +35,21 @@ class Account(User):
     """
     reset_code = models.TextField(null=True)
 
+    @staticmethod
+    def get_manage_scope():
+        """
+        Scope used for managing user accounts
+        """
+        return Scope.objects.get(
+            codename=PermissionCodes.Account.MANAGE,
+        )
+
     @property
     def managers(self):
         """
         List of accounts managing this user
         """
-        mgr_scope = Scope.objects.get(
-            codename=PermissionCodes.Account.MANAGE,
-        )
+        mgr_scope = self.get_manage_scope()
         return {auth.owner.id for auth in mgr_scope.auths.filter(
             user=self,
             active=True,
@@ -53,9 +60,7 @@ class Account(User):
         """
         List of accounts this user manages
         """
-        mgr_scope = Scope.objects.get(
-            codename=PermissionCodes.Account.MANAGE,
-        )
+        mgr_scope = self.get_manage_scope()
         return {auth.user.id for auth in mgr_scope.auths.filter(
             owner=self,
             active=True,
