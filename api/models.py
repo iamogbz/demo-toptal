@@ -5,11 +5,12 @@ from django.contrib.auth.hashers import (
     check_password,
     make_password,
 )
-from django.db import models
 from django.contrib.auth.models import (
     User,
     Permission,
 )
+from django.core.validators import MinValueValidator
+from django.db import models
 
 from api.constants import PermissionCodes
 
@@ -56,6 +57,14 @@ class Account(User):
         :returns bool: True if the reset code match
         """
         return check_password(plain_code, self.reset_code)
+
+    def clear_reset_code(self, save=False):
+        """
+        Set the account reset code to None
+        """
+        self.reset_code = None
+        if save:
+            self.save()
 
     @staticmethod
     def get_manage_scope():
@@ -159,8 +168,9 @@ class Trip(models.Model):
     account = models.ForeignKey(
         Account, on_delete=models.CASCADE, related_name='trips')
     date_created = models.DateField(auto_now_add=True)
-    length_time = models.PositiveIntegerField()
-    length_distance = models.PositiveIntegerField()
+    length_time = models.PositiveIntegerField(validators=[MinValueValidator(0)])
+    length_distance = models.PositiveIntegerField(
+        default=0, validators=[MinValueValidator(0)])
     date_updated = models.DateField(auto_now=True)
 
     class Meta:

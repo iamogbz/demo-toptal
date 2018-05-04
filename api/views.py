@@ -78,8 +78,8 @@ def auth_reset(request):
         if utils.has_required(data.keys(), {'email', 'code', 'password'}):
             user = get_object_or_404(models.Account, email=data['email'])
             if user.check_reset_code(data['code']):
-                user.set_reset_code(None)
                 user.set_password(data['password'])
+                user.clear_reset_code()
                 user.save()
                 return Response(data={
                     'detail': 'password reset successfully',
