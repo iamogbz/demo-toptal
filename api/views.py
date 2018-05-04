@@ -139,7 +139,7 @@ class AccountViewSet(viewsets.ModelViewSet):
         return self.queryset.filter(pk=self.request.user.id)
 
     @action(
-        methods=[Methods.GET, Methods.PUT, Methods.DELETE],
+        methods=[Methods.GET, Methods.PUT, Methods.PATCH, Methods.DELETE],
         detail=False,
     )
     def profile(self, request, *_, **kwargs):
@@ -151,8 +151,8 @@ class AccountViewSet(viewsets.ModelViewSet):
             obj = get_object_or_404(models.Account, pk=request.user.id)
             serializer = self.get_serializer(obj)
             response = Response(serializer.data)
-        elif request.method == Methods.PUT:
-            partial = kwargs.pop('partial', False)
+        elif request.method in [Methods.PUT, Methods.PATCH]:
+            partial = kwargs.pop('partial', request.method == Methods.PATCH)
             serializer = self.get_serializer(
                 obj,
                 data=request.data,
