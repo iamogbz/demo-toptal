@@ -156,7 +156,8 @@ class Trip(models.Model):
     :param length_distance: total distance of trip in metres
     :param date_updated: timestamp of last edit made
     """
-    account = models.ForeignKey(Account, on_delete=models.CASCADE)
+    account = models.ForeignKey(
+        Account, on_delete=models.CASCADE, related_name='trips')
     date_created = models.DateField(auto_now_add=True)
     length_time = models.PositiveIntegerField()
     length_distance = models.PositiveIntegerField()
