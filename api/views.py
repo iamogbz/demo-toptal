@@ -133,6 +133,11 @@ class AccountViewSet(viewsets.ModelViewSet):
             return serializers.TripSerializer
         return super().get_serializer_class()
 
+    def get_queryset(self):
+        if self.request.user.is_superuser:
+            return self.queryset
+        return self.queryset.filter(pk=self.request.user.id)
+
     @action(methods=[Methods.GET, Methods.PUT], detail=False)
     def profile(self, request, *_, **kwargs):
         """
@@ -209,10 +214,10 @@ class AccountViewSet(viewsets.ModelViewSet):
                     )
                 mgr = get_object_or_404(models.Account, email=mgr_email)
                 if method == Methods.POST:
-                    if _auth_manager(user=user, mgr=mgr):
+                    if auth_manager(user=user, mgr=mgr):
                         response_data = self.get_serializer(mgr).data
                         response_status = status.HTTP_202_ACCEPTED
-                elif _deauth_manager(user=user, mgr=mgr):
+                elif deauth_manager(user=user, mgr=mgr):
                     response_status = status.HTTP_204_NO_CONTENT
             else:
                 utils.raise_api_exc(
@@ -262,7 +267,7 @@ class AccountViewSet(viewsets.ModelViewSet):
                         status.HTTP_400_BAD_REQUEST,
                     )
                 user = get_object_or_404(models.Account, email=usr_email)
-                if _deauth_manager(user=user, mgr=mgr):
+                if deauth_manager(user=user, mgr=mgr):
                     response_status = status.HTTP_204_NO_CONTENT
             else:
                 utils.raise_api_exc(
@@ -275,18 +280,18 @@ class AccountViewSet(viewsets.ModelViewSet):
         )
 
 
-def _auth_manager(user, mgr):
+def auth_manager(user, mgr):
     """
     Authorise and notify manager for user account
     :raises APIException: if manager already authorized
+    :raises APIException: if manager managing at limit
+    :raises APIException: if user manager count at limit
     """
-    # check if account already manages current user
     if mgr.id in user.managers:
         utils.raise_api_exc(
             APIException('email already authorised'),
             status.HTTP_400_BAD_REQUEST
         )
-    # check if above limit:
     if len(mgr.managing) >= Limits.ACCOUNT_MANAGED:
         utils.raise_api_exc(
             APIException('account is managing more than enough'),
@@ -298,12 +303,10 @@ def _auth_manager(user, mgr):
             status.HTTP_406_NOT_ACCEPTABLE
         )
 
-    # get scope for managing user account
     mgr_scope = models.Scope.objects.get(
         codename=PermissionCodes.Account.MANAGE,
     )
-    # get previous
-    _deauth_manager(user=user, mgr=mgr)
+    deauth_manager(user=user, mgr=mgr)
     auth = models.Auth.objects.create(
         owner=mgr,
         user=user,
@@ -316,11 +319,10 @@ def _auth_manager(user, mgr):
     return True
 
 
-def _deauth_manager(user, mgr):
+def deauth_manager(user, mgr):
     """
     Deauthorise all manager auth on user account
     """
-    # deauth all previous
     return models.Auth.objects.filter(owner=mgr, user=user).update(
         active=False, code=None,
     )
@@ -343,7 +345,7 @@ class TripViewSet(viewsets.ModelViewSet):
         return Response(result.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def get_queryset(self):
-        return models.Trip.objects.filter(account_id=self.request.user.id)
+        return self.queryset.filter(account_id=self.request.user.id)
 
 
 def create_trip(account, data, request=None):
