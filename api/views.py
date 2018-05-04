@@ -171,8 +171,7 @@ class AccountViewSet(viewsets.ModelViewSet):
         ]):
             raise Http404()
         if request.method == 'GET':
-            trips = self.paginate_queryset(
-                models.Trip.objects.filter(account_id=acc.id))
+            trips = self.paginate_queryset(acc.trips.all())
             serializer = self.get_serializer(
                 trips, many=True, context={'request': request})
             response = self.get_paginated_response(serializer.data)
