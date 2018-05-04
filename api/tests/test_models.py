@@ -12,15 +12,7 @@ from api.models import (
     Account,
     Trip,
 )
-
-
-class FixturesMixin(object):
-    """
-    Fixture test to load data
-    """
-    fixtures = [
-        'initial_data_api.json',
-    ]
+from api.tests import FixturesMixin
 
 
 class ScopeTest(FixturesMixin, TestCase):
