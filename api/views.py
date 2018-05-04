@@ -138,10 +138,13 @@ class AccountViewSet(viewsets.ModelViewSet):
             return self.queryset
         return self.queryset.filter(pk=self.request.user.id)
 
-    @action(methods=[Methods.GET, Methods.PUT], detail=False)
+    @action(
+        methods=[Methods.GET, Methods.PUT, Methods.DELETE],
+        detail=False,
+    )
     def profile(self, request, *_, **kwargs):
         """
-        Handle showing and updating of tracking information
+        Handle showing, updating and deletion of account
         """
         obj = get_object_or_404(models.Account, pk=request.user.id)
         if request.method == Methods.GET:
@@ -158,7 +161,12 @@ class AccountViewSet(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
             self.perform_update(serializer)
             response = Response(serializer.data)
-
+        elif request.method == Methods.DELETE:
+            obj.delete()
+            response = Response(
+                data=None,
+                status=status.HTTP_204_NO_CONTENT,
+            )
         return response
 
     @action(methods=[Methods.GET, Methods.POST], detail=False,
@@ -195,7 +203,7 @@ class AccountViewSet(viewsets.ModelViewSet):
         """
         Handle listing and adding accounts that can manage user
         """
-        user = models.Account.objects.get(pk=request.user.id)
+        user = get_object_or_404(models.Account, pk=request.user.id)
         method = request.method
         response_data = None
         response_status = status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -234,7 +242,7 @@ class AccountViewSet(viewsets.ModelViewSet):
         """
         Handle listing and updating account user is currently managing
         """
-        mgr = models.Account.objects.get(pk=request.user.id)
+        mgr = get_object_or_404(models.Account, pk=request.user.id)
         method = request.method
         response_data = None
         response_status = status.HTTP_500_INTERNAL_SERVER_ERROR
