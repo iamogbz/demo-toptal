@@ -1,30 +1,30 @@
 [{
     "model": "api.scope",
-    "pk": 19,
+    "pk": 23,
     "fields": {
         "includes": []
     }
 }, {
     "model": "api.scope",
-    "pk": 20,
+    "pk": 24,
     "fields": {
-        "includes": [22]
+        "includes": [26]
     }
 }, {
     "model": "api.scope",
-    "pk": 21,
+    "pk": 25,
     "fields": {
-        "includes": [20]
+        "includes": [24]
     }
 }, {
     "model": "api.scope",
-    "pk": 23,
+    "pk": 27,
     "fields": {
-        "includes": [22]
+        "includes": [26]
     }
 }, {
     "model": "api.scope",
-    "pk": 22,
+    "pk": 26,
     "fields": {
         "includes": []
     }
@@ -32,7 +32,7 @@
     "model": "api.scope",
     "pk": 32,
     "fields": {
-        "includes": [22]
+        "includes": [35]
     }
 }, {
     "model": "api.scope",
@@ -50,7 +50,7 @@
     "model": "api.scope",
     "pk": 35,
     "fields": {
-        "includes": [22]
+        "includes": [26]
     }
 }, {
     "model": "api.account",
@@ -136,7 +136,7 @@
         "code": null,
         "active": false,
         "date_created": "2018-04-27",
-        "scopes": [23]
+        "scopes": [27]
     }
 }, {
     "model": "api.auth",
@@ -147,7 +147,7 @@
         "code": null,
         "active": false,
         "date_created": "2018-04-29",
-        "scopes": [23]
+        "scopes": [27]
     }
 }, {
     "model": "api.auth",
@@ -158,7 +158,7 @@
         "code": null,
         "active": true,
         "date_created": "2018-04-29",
-        "scopes": [23]
+        "scopes": [27]
     }
 }, {
     "model": "api.trip",

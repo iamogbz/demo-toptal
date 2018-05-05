@@ -24,9 +24,10 @@ class ScopeTest(FixturesMixin, TestCase):
         """
         Test scope description is permission name
         """
+        scope = Scope.objects.first()
         self.assertEqual(
-            Scope.objects.get(pk=19).description,
-            Permission.objects.get(pk=19).name,
+            Scope.objects.first().description,
+            Permission.objects.get(pk=scope.id).name,
         )
 
 
