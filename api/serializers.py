@@ -43,6 +43,7 @@ class TripSerializer(serializers.ModelSerializer):
     """
     Trip session serializer
     """
+    owner = serializers.ReadOnlyField(source='account_id')
 
     def create(self, validated_data):
         request = self.context['request']
@@ -54,4 +55,7 @@ class TripSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Trip
-        fields = ('id', 'date_created', 'length_distance', 'length_time',)
+        fields = (
+            'id', 'owner', 'date_created',
+            'length_distance', 'length_time',
+        )

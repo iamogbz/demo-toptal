@@ -134,9 +134,10 @@ class AccountViewSet(viewsets.ModelViewSet):
         return super().get_serializer_class()
 
     def get_queryset(self):
-        if self.request.user.is_superuser:
+        acc = get_object_or_404(models.Account, pk=self.request.user.id)
+        if acc.is_superuser:
             return self.queryset
-        return self.queryset.filter(pk=self.request.user.id)
+        return self.queryset.filter(pk=acc.id)
 
     @action(
         methods=[Methods.GET, Methods.PUT, Methods.PATCH, Methods.DELETE],
@@ -338,7 +339,7 @@ def deauth_manager(user, mgr):
 
 class TripViewSet(viewsets.ModelViewSet):
     """
-    Control trip session model
+    Control trip session model on all accounts
     """
     queryset = models.Trip.objects.all()
     serializer_class = serializers.TripSerializer
@@ -353,7 +354,10 @@ class TripViewSet(viewsets.ModelViewSet):
         return Response(result.data, status=status.HTTP_201_CREATED)
 
     def get_queryset(self):
-        return self.queryset.filter(account_id=self.request.user.id)
+        acc = get_object_or_404(models.Account, pk=self.request.user.id)
+        if acc.is_superuser:
+            return self.queryset
+        return self.queryset.filter(account_id__in=({acc.id} | acc.managing))
 
 
 def create_trip(account, data, request=None):
