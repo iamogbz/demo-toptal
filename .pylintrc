@@ -1,6 +1,9 @@
 [MASTER]
 load-plugins=pylint_django
 
+[TYPECHECK]
+generated-members=filter,force_authenticate
+
 [DESIGN]
 max-parents=99
 min-public-methods=0

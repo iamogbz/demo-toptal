@@ -3,6 +3,17 @@ Utility functions for api module
 """
 
 
+def peek(bucket):
+    """
+    Get first element of set without removing
+    :param bucket: set to peek
+    """
+    elem = None
+    for elem in bucket:
+        break
+    return elem
+
+
 def has_required(bucket, required):
     """
     Check if all values in required set exist in bucket

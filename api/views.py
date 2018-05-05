@@ -129,7 +129,7 @@ class AccountViewSet(viewsets.ModelViewSet):
     )
 
     def get_serializer_class(self):
-        if self.action == 'managed_trips':
+        if self.action == 'trips':
             return serializers.TripSerializer
         return super().get_serializer_class()
 
@@ -170,9 +170,11 @@ class AccountViewSet(viewsets.ModelViewSet):
             )
         return response
 
-    @action(methods=[Methods.GET, Methods.POST], detail=False,
-            url_path='(?P<user_id>[0-9]+)/trips')
-    def managed_trips(self, request, user_id):
+    @action(
+        methods=[Methods.GET, Methods.POST], detail=False,
+        url_path='(?P<user_id>[0-9]+)/trips',
+    )
+    def trips(self, request, user_id):
         """
         Handle viewing and adding of managed user jogging sessions
         """
@@ -332,7 +334,9 @@ def deauth_manager(user, mgr):
     """
     Deauthorise all manager auth on user account
     """
-    return models.Auth.objects.filter(owner=mgr, user=user).update(
+    return models.Account.get_manage_scope().auths.filter(
+        user=user, owner=mgr,
+    ).update(
         active=False, code=None,
     )
 
@@ -347,7 +351,7 @@ class TripViewSet(viewsets.ModelViewSet):
         permissions.JoggerPermissions,
     )
 
-    def create(self, request, *_, **___):
+    def create(self, request, *_, **__):
         result = create_trip(request.user, request.data.copy(), request)
         if result.errors:
             return Response(result.errors, status=status.HTTP_400_BAD_REQUEST)
