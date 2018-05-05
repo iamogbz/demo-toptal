@@ -10,22 +10,27 @@ class SettingsTest(TestCase):
     Test app settings
     """
 
+    def assert_string(self, value, min_length):
+        """
+        Custom assert string is not None or less than minimum length
+        :param value: string to test
+        :param min_length: minimum acceptable length
+        """
+        self.assertIsNotNone(value)
+        self.assertGreaterEqual(len(value), min_length)
+
     def test_environment(self):
         """
         Test dot env loaded enviroment settings
         """
-        secret_key = os.getenv('SECRET')
-        self.assertIsNotNone(secret_key)
-        self.assertGreater(len(secret_key), 32)
-
-        debug_flag = os.getenv('DEBUG')
+        self.assert_string(os.getenv('SECRET'), 32)
+        debug_flag = int(os.getenv('DEBUG'))
         self.assertIsNotNone(debug_flag)
-        self.assertEqual(len(debug_flag), 1)
 
-        db_name = os.getenv('DB_NAME')
-        self.assertIsNotNone(db_name)
-        self.assertGreater(len(db_name), 0)
+        self.assert_string(os.getenv('DB_NAME'), 1)
+        self.assert_string(os.getenv('DB_TEST'), 1)
+        self.assert_string(os.getenv('SMTP_HOST'), 1)
 
-        db_test = os.getenv('DB_TEST')
-        self.assertIsNotNone(db_test)
-        self.assertGreater(len(db_test), 0)
+        smtp_port = int(os.getenv('SMTP_PORT'))
+        self.assertIsNotNone(smtp_port)
+        self.assert_string(os.getenv('SMTP_USER'), 1)

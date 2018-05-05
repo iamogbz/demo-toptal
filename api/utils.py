@@ -62,7 +62,6 @@ def send_mail(sender, recievers, subject, tmpl_file, tmpl_data):
     :param str tmpl_file: file path to use as email body template
     :param dict tmpl_data: keys to string replacement for email template
     """
-    msg = ''
     with open(tmpl_file, 'r') as fstream:
         msg = MIMEText(fstream.read())
     msg.preamble = subject
