@@ -160,4 +160,64 @@
         "date_created": "2018-04-29",
         "scopes": [23]
     }
+}, {
+    "model": "api.trip",
+    "pk": 1,
+    "fields": {
+        "account": 3,
+        "date_created": "2018-04-30",
+        "length_time": 100,
+        "length_distance": 12,
+        "date_updated": "2018-04-30"
+    }
+}, {
+    "model": "api.trip",
+    "pk": 2,
+    "fields": {
+        "account": 3,
+        "date_created": "2018-04-30",
+        "length_time": 100,
+        "length_distance": 12,
+        "date_updated": "2018-04-30"
+    }
+}, {
+    "model": "api.trip",
+    "pk": 3,
+    "fields": {
+        "account": 1,
+        "date_created": "2018-04-30",
+        "length_time": 50,
+        "length_distance": 5,
+        "date_updated": "2018-04-30"
+    }
+}, {
+    "model": "api.trip",
+    "pk": 4,
+    "fields": {
+        "account": 2,
+        "date_created": "2018-04-30",
+        "length_time": 60,
+        "length_distance": 5,
+        "date_updated": "2018-04-30"
+    }
+}, {
+    "model": "api.trip",
+    "pk": 5,
+    "fields": {
+        "account": 2,
+        "date_created": "2018-04-30",
+        "length_time": 100,
+        "length_distance": 12,
+        "date_updated": "2018-04-30"
+    }
+}, {
+    "model": "api.trip",
+    "pk": 6,
+    "fields": {
+        "account": 2,
+        "date_created": "2018-05-01",
+        "length_time": 99,
+        "length_distance": 11,
+        "date_updated": "2018-05-01"
+    }
 }]

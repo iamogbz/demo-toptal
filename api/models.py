@@ -107,17 +107,19 @@ class Account(User):
 class Auth(models.Model):
     """
     Custom authorisation class
+    :property user: Account authorisation is granting access
+    :property owner: Account this authorithy is granted to
     """
     user = models.ForeignKey(
         Account,
         on_delete=models.CASCADE,
-        related_name="user",
+        related_name="authorised",
     )
     owner = models.ForeignKey(
         Account,
         null=True,
         on_delete=models.SET_NULL,
-        related_name="owner",
+        related_name="authorities",
     )
     code = models.TextField(null=True)
     active = models.BooleanField(default=False)
