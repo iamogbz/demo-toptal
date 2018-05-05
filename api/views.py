@@ -190,12 +190,12 @@ class AccountViewSet(viewsets.ModelViewSet):
             response = self.get_paginated_response(serializer.data)
         else:
             result = create_trip(acc, request.data.copy(), request)
-            if result.data:
-                response = Response(result.data,
-                                    status=status.HTTP_201_CREATED)
+            if result.errors:
+                response = Response(
+                    result.errors, status=status.HTTP_400_BAD_REQUEST)
             else:
-                response = Response(result.errors,
-                                    status=status.HTTP_400_BAD_REQUEST)
+                response = Response(
+                    result.data, status=status.HTTP_201_CREATED)
         return response
 
     @action(methods=[Methods.GET, Methods.POST, Methods.DELETE], detail=False)
@@ -348,9 +348,9 @@ class TripViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *_, **___):
         result = create_trip(request.user, request.data.copy(), request)
-        if result.data:
-            return Response(result.data, status=status.HTTP_201_CREATED)
-        return Response(result.errors, status=status.HTTP_400_BAD_REQUEST)
+        if result.errors:
+            return Response(result.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(result.data, status=status.HTTP_201_CREATED)
 
     def get_queryset(self):
         return self.queryset.filter(account_id=self.request.user.id)
@@ -364,9 +364,10 @@ def create_trip(account, data, request=None):
         if k in data:
             del data[k]
     data['account'] = account
+    if request:
+        setattr(request, 'user', account)
     serializer = serializers.TripSerializer(
         data=data, context={'request': request})
     if serializer.is_valid():
         serializer.save()
-        return serializer
-    return None
+    return serializer
