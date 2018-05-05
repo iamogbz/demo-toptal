@@ -1,6 +1,13 @@
 """
 Api constants
 """
+import os
+
+from django.conf import settings
+
+MAIL_HOST = os.getenv('SMTP_HOST')
+MAIL_FROM = '{}@{}'.format(MAIL_HOST, os.getenv('SMTP_USER'))
+MAIL_PORT = int(os.getenv('SMTP_PORT'))
 
 
 class Limits:
@@ -64,3 +71,18 @@ class PermissionCodes:
         EDIT = 'change_trip'
         CREATE = 'create_trip'
         DELETE = 'delete_trip'
+
+
+class Templates:
+    """
+    Template files
+    """
+    class Email:
+        """
+        Email template paths
+        """
+        _ROOT = settings.BASE_DIR + '/api/static/email/'
+        RESET_REQUEST = _ROOT + 'account_reset_request.tmpl'
+        RESET_COMPLETE = _ROOT + 'account_reset_complete.tmpl'
+        MANAGER_REQUEST = _ROOT + 'account_manager_request.tmpl'
+        MANAGE_REQUEST = _ROOT + 'account_manage_request.tmpl'

@@ -1,6 +1,14 @@
 """
 Utility functions for api module
 """
+import re
+import smtplib
+from email.mime.text import MIMEText
+
+from api.constants import (
+    MAIL_HOST,
+    MAIL_PORT,
+)
 
 
 def peek(bucket):
@@ -30,3 +38,40 @@ def raise_api_exc(exc, status_code):
     """
     exc.status_code = status_code
     raise exc
+
+
+def replace(string, replxs):
+    """
+    Given a string and a replacement map, it returns the replaced string.
+    https://goo.gl/7fcBpE
+    :param str string: string to execute replacements on
+    :param dict replxs: replacement map {value to find: value to replace}
+    :rtype: str
+    """
+    substrs = sorted(replxs, key=len, reverse=True)
+    regexp = re.compile('|'.join(map(re.escape, substrs)))
+    return regexp.sub(lambda match: replxs.get(match.group(0), ''), string)
+
+
+def send_mail(sender, recievers, subject, tmpl_file, tmpl_data):
+    """
+    Send mail using localhost smtp
+    :param str sender: email to send from
+    :param list recievers: list of emails to send to
+    :param str subject: the email subject
+    :param str tmpl_file: file path to use as email body template
+    :param dict tmpl_data: keys to string replacement for email template
+    """
+    msg = ''
+    with open(tmpl_file, 'r') as fstream:
+        msg = MIMEText(fstream.read())
+    msg.preamble = subject
+    msg['Subject'] = subject
+    msg['From'] = sender
+    msg['To'] = ', '.join(recievers)
+    msg = replace(msg.as_string(), tmpl_data)
+
+    smtp = smtplib.SMTP(MAIL_HOST, MAIL_PORT)
+    smtp.sendmail(sender, recievers, msg)
+    smtp.quit()
+    return msg

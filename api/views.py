@@ -3,6 +3,7 @@ Api app views
 """
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404
+from django.urls import reverse
 from django.utils.crypto import get_random_string
 from rest_framework import (
     status,
@@ -24,10 +25,13 @@ from api import (
     utils,
 )
 from api.constants import (
+    MAIL_FROM,
     Limits,
     Methods,
     PermissionCodes,
+    Templates,
 )
+from api.utils import send_mail
 
 
 @api_view([Methods.POST])
@@ -69,7 +73,7 @@ def auth_reset(request):
             user = get_object_or_404(models.Account, email=email)
             reset_code = get_random_string(128)
             user.set_reset_code(reset_code, True)
-            # TODO send reset code to email
+            _send_reset_request_mail(request, user, reset_code)
             return Response(data={
                 'detail': 'reset code has been sent to your email',
             }, status=status.HTTP_200_OK)
@@ -81,6 +85,7 @@ def auth_reset(request):
                 user.set_password(data['password'])
                 user.clear_reset_code()
                 user.save()
+                _send_reset_confirm_mail(request, user)
                 return Response(data={
                     'detail': 'password reset successfully',
                 }, status=status.HTTP_200_OK)
@@ -97,6 +102,42 @@ def auth_reset(request):
         status.HTTP_405_METHOD_NOT_ALLOWED,
     )
     return None
+
+
+def _send_reset_request_mail(request, user, code):
+    """
+    Send password reset request mail
+    :param request: request context
+    :param user: user account
+    :param code: reset code
+    """
+    reset_link = '{}?code={}'.format(
+        request.build_absolute_uri(reverse('auth-reset')),
+        code,
+    )
+    send_mail(
+        sender=MAIL_FROM,
+        recievers=[user.email],
+        subject='Account Password Reset',
+        tmpl_file=Templates.Email.RESET_REQUEST,
+        tmpl_data={
+            '{email}': user.email,
+            '{reset_confirm_link}': reset_link,
+        },
+    )
+
+
+def _send_reset_confirm_mail(_, user):
+    """
+    Send confirmation of password reset change
+    """
+    send_mail(
+        sender=MAIL_FROM,
+        recievers=[user.email],
+        subject='Account Password Changed',
+        tmpl_file=Templates.Email.RESET_COMPLETE,
+        tmpl_data={},
+    )
 
 
 class ScopeViewSet(viewsets.ModelViewSet):
@@ -225,7 +266,9 @@ class AccountViewSet(viewsets.ModelViewSet):
                     )
                 mgr = get_object_or_404(models.Account, email=mgr_email)
                 if method == Methods.POST:
-                    if auth_manager(user=user, mgr=mgr):
+                    auth = auth_manager(user=user, mgr=mgr)
+                    if auth:
+                        self._send_manage_request_mail(user, mgr_email, auth)
                         response_data = self.get_serializer(mgr).data
                         response_status = status.HTTP_202_ACCEPTED
                 elif deauth_manager(user=user, mgr=mgr):
@@ -238,6 +281,43 @@ class AccountViewSet(viewsets.ModelViewSet):
         return Response(
             data=response_data,
             status=response_status,
+        )
+
+    def _send_manage_request_mail(self, user, mgr_email, auth):
+        """
+        Send mail to manager requested for confirmation
+        """
+        confirm_link = '{}?code={}'.format(
+            self.request.build_absolute_uri(
+                reverse('account-managing')),
+            auth.code,
+        )
+        send_mail(
+            sender=MAIL_FROM,
+            recievers=[mgr_email],
+            subject='Account Manage Request',
+            tmpl_file=Templates.Email.MANAGE_REQUEST,
+            tmpl_data={
+                '{username}': user.username,
+                '{user_email}': user.email,
+                '{manager_email}': mgr_email,
+                '{manage_confirm_link}': confirm_link,
+            },
+        )
+        cancel_link = '{}?email={}'.format(
+            self.request.build_absolute_uri(
+                reverse('account-managers')),
+            mgr_email,
+        )
+        send_mail(
+            sender=MAIL_FROM,
+            recievers=[user.email],
+            subject='Account Manager Request',
+            tmpl_file=Templates.Email.MANAGER_REQUEST,
+            tmpl_data={
+                '{manager_email}': mgr_email,
+                '{manage_cancel_link}': cancel_link,
+            },
         )
 
     @action(methods=[Methods.GET, Methods.POST, Methods.DELETE], detail=False)
@@ -326,8 +406,7 @@ def auth_manager(user, mgr):
     )
     auth.scopes.set({mgr_scope})
     auth.save()
-    # TODO Send notice to account to complete authorisation
-    return True
+    return auth
 
 
 def deauth_manager(user, mgr):
