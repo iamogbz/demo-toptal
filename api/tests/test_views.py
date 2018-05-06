@@ -1,15 +1,20 @@
 """
 Test api endpoints
 """
+import json
+
 from django.core.exceptions import ObjectDoesNotExist
 from django.urls import reverse
 from django.utils.crypto import get_random_string
 from rest_framework import status
+from rest_framework.exceptions import APIException
 from rest_framework.test import APITestCase
 
+from api.constants import Limits
 from api.models import Account
 from api.tests import AccountMixin
 from api.utils import peek
+from api.views import auth_manager
 
 
 class AccountViewsTest(AccountMixin, APITestCase):
@@ -45,6 +50,9 @@ class AccountViewsTest(AccountMixin, APITestCase):
         self.client.force_authenticate(user=self.user)
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        url = reverse('auth-detail', args=[1])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_account_create(self):
         """
@@ -68,10 +76,10 @@ class AccountViewsTest(AccountMixin, APITestCase):
         test_pass = get_random_string(16)
         self.user.set_password(test_pass)
         self.user.save()
-        data = {
-            'email': self.user.email,
-            'password': 'invalid-password',
-        }
+        data = {'email': self.user.email}
+        response = self.client.post(url, data=data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        data['password'] = 'invalid-password'
         response = self.client.post(url, data=data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         data['password'] = test_pass
@@ -86,6 +94,8 @@ class AccountViewsTest(AccountMixin, APITestCase):
         acc = self.user
         acc.clear_reset_code(True)
         self.assertIsNone(acc.reset_code)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         data = {'email': acc.email}
         response = self.client.get(url, data=data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -102,9 +112,11 @@ class AccountViewsTest(AccountMixin, APITestCase):
         acc.set_reset_code(reset_code, True)
         data = {
             'email': acc.email,
-            'code': 'invalid-reset-code',
             'password': get_random_string(16),
         }
+        response = self.client.post(url, data=data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        data['code'] = 'invalid-reset-code'
         response = self.client.post(url, data=data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         data['code'] = reset_code
@@ -123,6 +135,9 @@ class AccountViewsTest(AccountMixin, APITestCase):
         url = reverse('account-detail', args=[self.mgr.id])
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        url = reverse('account-detail', args=[self.user.id])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         url = reverse('account-profile')
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -191,6 +206,8 @@ class TripViewsTest(AccountMixin, APITestCase):
         data = {
             'length_distance': 200,
             'length_time': 1200,
+            'account': self.mgr.id,
+            'account_id': self.mgr.id,
         }
         self.client.force_authenticate(self.user)
         response = self.client.post(url, data=data)
@@ -198,29 +215,38 @@ class TripViewsTest(AccountMixin, APITestCase):
             response, 'date_created',
             status_code=status.HTTP_201_CREATED,
         )
+        result = json.loads(response.content)
+        self.assertEqual(self.user.id, result.get('owner'))
 
     def test_user_trips_create_invalid(self):
         """
         Test cannot create trip with invalid values
         """
-        url = reverse('trip-list')
         self.client.force_authenticate(self.user)
         data = {
             'length_time': -2000,
             'length_distance': 40,
         }
+        url = reverse('account-trips', args=[self.user.id])
+        response = self.client.post(url, data=data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        url = reverse('trip-list')
         response = self.client.post(url, data=data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         data = {
             'length_time': 2000,
             'length_distance': -40,
         }
+        url = reverse('account-trips', args=[self.user.id])
+        response = self.client.post(url, data=data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        url = reverse('trip-list')
         response = self.client.post(url, data=data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_user_trips_read(self):
         """
-        Test access on /account/1/trips and /trips
+        Test access on /account/1/trips, /trips and /trips/{id}
         """
         self.client.force_authenticate(self.user)
         url = reverse('trip-list')
@@ -241,6 +267,8 @@ class TripViewsTest(AccountMixin, APITestCase):
         self.assertNotEqual(trip.length_distance, new_length_distance)
         url = reverse('trip-detail', args=[trip.id])
         self.client.force_authenticate(self.user)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
         response = self.client.patch(url, data={
             'length_distance': new_length_distance,
         })
@@ -314,13 +342,29 @@ class AccountManagerTest(AccountMixin, APITestCase):
     Test account manager endpoints
     """
 
+    def test_acc_manager_auth_no_dup(self):
+        """
+        Test that a manager can not be requested if already authorised
+        """
+        url = reverse('account-managers')
+        self.client.force_authenticate(self.user)
+        data = {'email': self.mgr.email}
+        response = self.client.post(url, data=data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
     def test_acc_manager_authorise(self):
         """
         Test user account request for manager
         """
         url = reverse('account-managers')
         self.client.force_authenticate(self.mgr)
-        data = {'email': self.user.email}
+        data = {}
+        response = self.client.post(url, data=data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        data['email'] = self.mgr.email
+        response = self.client.post(url, data=data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        data['email'] = self.user.email
         response = self.client.post(url, data=data)
         self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
 
@@ -332,7 +376,9 @@ class AccountManagerTest(AccountMixin, APITestCase):
 
         url = reverse('account-managing')
         self.client.force_authenticate(self.user)
-        dummy_auth_code = 'dumnmy-auth-code'
+        response = self.client.post(url, data={})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        dummy_auth_code = 'dummy-auth-code'
         data = {'code': dummy_auth_code}
         response = self.client.post(url, data=data)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
@@ -345,6 +391,40 @@ class AccountManagerTest(AccountMixin, APITestCase):
         auth.refresh_from_db()
         self.assertIsNone(auth.code)
         self.assertTrue(auth.active)
+
+    def test_acc_managers_limit(self):
+        """
+        Test that a new manager cannot be requested when limit is reached
+        """
+        email_tmpl = 'username{}@example.com'
+        with self.assertRaises(APIException):
+            for i in range(Limits.ACCOUNT_MANAGER + 1):
+                self.user.refresh_from_db()
+                email = email_tmpl.format(i)
+                account = Account.objects.create(username=email, email=email)
+                auth = auth_manager(self.user, account)
+                auth.activate()
+        url = reverse('account-managers')
+        self.client.force_authenticate(self.user)
+        response = self.client.post(url, {'email': account.email})
+        self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
+
+    def test_acc_managing_limit(self):
+        """
+        Test that an account cannot be requested to manage if it is at limit
+        """
+        email_tmpl = 'username{}@example.com'
+        with self.assertRaises(APIException):
+            for i in range(Limits.ACCOUNT_MANAGED + 1):
+                self.user.refresh_from_db()
+                email = email_tmpl.format(i)
+                account = Account.objects.create(username=email, email=email)
+                auth = auth_manager(account, self.user)
+                auth.activate()
+        url = reverse('account-managers')
+        self.client.force_authenticate(self.mgr)
+        response = self.client.post(url, {'email': self.user.email})
+        self.assertEqual(response.status_code, status.HTTP_406_NOT_ACCEPTABLE)
 
     def test_get_account_managing(self):
         """
@@ -422,12 +502,24 @@ class AccountManagerTest(AccountMixin, APITestCase):
 
     def test_acc_manager_deauthorise(self):
         """
-        Test deauthorisation of manager
+        Test deauthorisation of manager by user
         """
         url = reverse('account-managers')
         self.client.force_authenticate(self.user)
-        data = {'email': self.mgr.email}
-        response = self.client.delete(url, data=data)
+        response = self.client.delete(url, data={'email': self.mgr.email})
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.user.refresh_from_db()
+        self.assertNotIn(self.mgr.id, self.user.managers)
+
+    def test_acc_managing_deauthorise(self):
+        """
+        Test manager deauthorising themselves for user
+        """
+        url = reverse('account-managing')
+        self.client.force_authenticate(self.mgr)
+        response = self.client.delete(url, data={})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        response = self.client.delete(url, data={'email': self.user.email})
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.user.refresh_from_db()
         self.assertNotIn(self.mgr.id, self.user.managers)

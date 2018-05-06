@@ -4,10 +4,12 @@ Test utility module
 from unittest.mock import patch
 from email.mime.text import MIMEText
 from django.test import SimpleTestCase
+from django.utils.crypto import get_random_string
 from rest_framework.exceptions import APIException
 
 from api.utils import (
     has_required,
+    peek,
     raise_api_exc,
     replace,
     send_mail,
@@ -18,6 +20,13 @@ class UtilsTest(SimpleTestCase):
     """
     Test helper functions
     """
+
+    def test_peek(self):
+        """
+        Test peek function
+        """
+        bucket = set(get_random_string(32))
+        self.assertEqual(peek(bucket), bucket.pop())
 
     def test_has_required(self):
         """

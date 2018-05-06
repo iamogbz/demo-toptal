@@ -47,9 +47,9 @@ class TripSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         request = self.context['request']
-        for k in ['account', 'account_id']:
-            if k in validated_data:
-                del validated_data[k]
+        # for k in ['account', 'account_id']:
+        #     if k in validated_data:
+        #         del validated_data[k]
         validated_data['account_id'] = request.user.id
         return models.Trip.objects.create(**validated_data)
 

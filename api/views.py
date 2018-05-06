@@ -40,25 +40,22 @@ def auth_user(request):
     """
     Authenticate user using email and password
     """
-    if request.method != Methods.POST:
-        utils.raise_api_exc(
-            APIException('{} not allowed'.format(request.method)),
-            status.HTTP_405_METHOD_NOT_ALLOWED,
-        )
     data = request.data
     if utils.has_required(data.keys(), {'email', 'password'}):
         user = get_object_or_404(models.Account, email=data['email'])
         if user.check_password(data['password']):
-            return JsonResponse(serializers.AccountSerializer(user).data)
+            response = JsonResponse(serializers.AccountSerializer(user).data)
+        else:
+            utils.raise_api_exc(
+                APIException('invalid credentials'),
+                status.HTTP_400_BAD_REQUEST,
+            )
+    else:
         utils.raise_api_exc(
-            APIException('invalid credentials'),
+            APIException('incomplete information'),
             status.HTTP_400_BAD_REQUEST,
         )
-    utils.raise_api_exc(
-        APIException('incomplete information'),
-        status.HTTP_400_BAD_REQUEST,
-    )
-    return None
+    return response
 
 
 @api_view([Methods.GET, Methods.POST])
@@ -74,10 +71,16 @@ def auth_reset(request):
             reset_code = get_random_string(128)
             user.set_reset_code(reset_code, True)
             _send_reset_request_mail(request, user, reset_code)
-            return Response(data={
+            response = Response(data={
                 'detail': 'reset code has been sent to your email',
             }, status=status.HTTP_200_OK)
-    elif request.method == Methods.POST:
+        else:
+            utils.raise_api_exc(
+                APIException('email is required to request a reset'),
+                status.HTTP_400_BAD_REQUEST,
+            )
+    else:
+        # POST
         data = request.data
         if utils.has_required(data.keys(), {'email', 'code', 'password'}):
             user = get_object_or_404(models.Account, email=data['email'])
@@ -86,22 +89,20 @@ def auth_reset(request):
                 user.clear_reset_code()
                 user.save()
                 _send_reset_confirm_mail(request, user)
-                return Response(data={
+                response = Response(data={
                     'detail': 'password reset successfully',
                 }, status=status.HTTP_200_OK)
+            else:
+                utils.raise_api_exc(
+                    APIException('invalid reset code'),
+                    status.HTTP_400_BAD_REQUEST,
+                )
+        else:
             utils.raise_api_exc(
-                APIException('invalid reset code'),
+                APIException('incomplete reset details'),
                 status.HTTP_400_BAD_REQUEST,
             )
-        utils.raise_api_exc(
-            APIException('incomplete reset details'),
-            status.HTTP_400_BAD_REQUEST,
-        )
-    utils.raise_api_exc(
-        APIException('{} not allowed'.format(request.method)),
-        status.HTTP_405_METHOD_NOT_ALLOWED,
-    )
-    return None
+    return response
 
 
 def _send_reset_request_mail(request, user, code):
@@ -203,7 +204,8 @@ class AccountViewSet(viewsets.ModelViewSet):
             serializer.is_valid(raise_exception=True)
             self.perform_update(serializer)
             response = Response(serializer.data)
-        elif request.method == Methods.DELETE:
+        else:
+            # DELETE
             obj.delete()
             response = Response(
                 data=None,
@@ -233,6 +235,7 @@ class AccountViewSet(viewsets.ModelViewSet):
                 trips, many=True, context={'request': request})
             response = self.get_paginated_response(serializer.data)
         else:
+            # POST
             result = create_trip(acc, request.data.copy(), request)
             if result.errors:
                 response = Response(
@@ -256,9 +259,10 @@ class AccountViewSet(viewsets.ModelViewSet):
             serializer = self.get_serializer(mgrs, many=True)
             response_data = serializer.data
             response_status = status.HTTP_200_OK
-        elif method in [Methods.POST, Methods.DELETE]:
-            mgr_email = request.data['email']
-            if mgr_email:
+        else:
+            # POST & DELETE
+            if utils.has_required(request.data.keys(), {'email'}):
+                mgr_email = request.data['email']
                 if user.email == mgr_email:
                     utils.raise_api_exc(
                         APIException('you are signed with this email'),
@@ -267,11 +271,12 @@ class AccountViewSet(viewsets.ModelViewSet):
                 mgr = get_object_or_404(models.Account, email=mgr_email)
                 if method == Methods.POST:
                     auth = auth_manager(user=user, mgr=mgr)
-                    if auth:
-                        self._send_manage_request_mail(user, mgr_email, auth)
-                        response_data = self.get_serializer(mgr).data
-                        response_status = status.HTTP_202_ACCEPTED
-                elif deauth_manager(user=user, mgr=mgr):
+                    self._send_manage_request_mail(user, mgr_email, auth)
+                    response_data = self.get_serializer(mgr).data
+                    response_status = status.HTTP_202_ACCEPTED
+                else:
+                    # DELETE
+                    deauth_manager(user=user, mgr=mgr)
                     response_status = status.HTTP_204_NO_CONTENT
             else:
                 utils.raise_api_exc(
@@ -335,13 +340,11 @@ class AccountViewSet(viewsets.ModelViewSet):
             response_data = serializer.data
             response_status = status.HTTP_200_OK
         elif method == Methods.POST:
-            auth_code = request.data['code']
-            if auth_code:
+            if utils.has_required(request.data.keys(), {'code'}):
+                auth_code = request.data['code']
                 auth = get_object_or_404(
                     models.Auth, code=auth_code, owner_id=mgr.id)
-                auth.code = None
-                auth.active = True
-                auth.save(update_fields=['code', 'active'])
+                auth.activate()
                 response_data = self.get_serializer(auth.user).data
                 response_status = status.HTTP_200_OK
             else:
@@ -349,17 +352,13 @@ class AccountViewSet(viewsets.ModelViewSet):
                     APIException('no authorization code supplied'),
                     status.HTTP_400_BAD_REQUEST,
                 )
-        elif method == Methods.DELETE:
-            usr_email = request.data['email']
-            if usr_email:
-                if mgr.email == usr_email:
-                    utils.raise_api_exc(
-                        APIException('you are signed with this email'),
-                        status.HTTP_400_BAD_REQUEST,
-                    )
+        else:
+            # DELETE
+            if utils.has_required(request.data.keys(), {'email'}):
+                usr_email = request.data['email']
                 user = get_object_or_404(models.Account, email=usr_email)
-                if deauth_manager(user=user, mgr=mgr):
-                    response_status = status.HTTP_204_NO_CONTENT
+                deauth_manager(user=user, mgr=mgr)
+                response_status = status.HTTP_204_NO_CONTENT
             else:
                 utils.raise_api_exc(
                     APIException('no email supplied'),
@@ -451,8 +450,7 @@ def create_trip(account, data, request=None):
         if k in data:
             del data[k]
     data['account'] = account
-    if request:
-        setattr(request, 'user', account)
+    setattr(request, 'user', account)
     serializer = serializers.TripSerializer(
         data=data, context={'request': request})
     if serializer.is_valid():

@@ -36,6 +36,38 @@ class AuthTest(FixturesMixin, TestCase):
     Test auth model
     """
 
+    def test_auth_activate(self):
+        """
+        Test that auth can be activated only once
+        """
+        auth = Auth.objects.create(
+            user_id=3, owner_id=2,
+            code=get_random_string(16))
+        self.assertFalse(auth.active)
+        self.assertIsNotNone(auth.code)
+
+        auth.activate()
+        auth.refresh_from_db()
+        self.assertTrue(auth.active)
+        self.assertIsNone(auth.code)
+
+        auth.deactivate()
+        auth.refresh_from_db()
+        self.assertFalse(auth.active)
+        self.assertIsNone(auth.code)
+
+        auth.activate()
+        auth.refresh_from_db()
+        self.assertFalse(auth.active)
+        self.assertIsNone(auth.code)
+
+    def test_scopes_flatten_invalid(self):
+        """
+        Test auth scope flatten function
+        """
+        pancake = Auth.flatten_scopes([0, 23, 27, 27, 35, 420])
+        self.assertSetEqual(pancake, {23, 26, 27, 35})
+
     def test_scope_granted_includes(self):
         """
         Test that granted property of auth includes nested scopes

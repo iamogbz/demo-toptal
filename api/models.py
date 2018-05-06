@@ -133,6 +133,24 @@ class Auth(models.Model):
         """
         return Auth.flatten_scopes(self.scopes.values_list('id', flat=True))
 
+    def activate(self):
+        """
+        Activate authorisation
+        Only works if code is not falsy
+        """
+        if self.code:
+            self.code = None
+            self.active = True
+            self.save(update_fields=['code', 'active'])
+
+    def deactivate(self):
+        """
+        Deactivate authorisation
+        """
+        self.code = None
+        self.active = False
+        self.save(update_fields=['code', 'active'])
+
     @staticmethod
     def flatten_scopes(scope_ids):
         """
