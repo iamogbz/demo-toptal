@@ -182,7 +182,7 @@ class AccountViewsTest(AccountMixin, APITestCase):
         Test superuser has access to RUD operations on any account
         """
         self.client.force_authenticate(self.superuser)
-        url = reverse('account-detail', args=[3])
+        url = reverse('account-detail', args=[self.mgr.id])
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         response = self.client.patch(
@@ -191,6 +191,8 @@ class AccountViewsTest(AccountMixin, APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         response = self.client.delete(url)
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        with self.assertRaises(ObjectDoesNotExist):
+            self.mgr.refresh_from_db()
 
 
 class TripViewsTest(AccountMixin, APITestCase):
