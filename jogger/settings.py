@@ -83,6 +83,11 @@ DATABASES = {
     }
 }
 
+# SMTP
+SMTP_HOST = os.getenv('SMTP_HOST', '')
+SMTP_PORT = int(os.getenv('SMTP_PORT', '0'))
+SMTP_USER = os.getenv('SMTP_USER', '')
+
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators

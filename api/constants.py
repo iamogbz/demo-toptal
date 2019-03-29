@@ -1,13 +1,17 @@
 """
 Api constants
 """
-import os
-
 from django.conf import settings
 
-MAIL_HOST = os.getenv('SMTP_HOST')
-MAIL_FROM = '{}@{}'.format(MAIL_HOST, os.getenv('SMTP_USER'))
-MAIL_PORT = int(os.getenv('SMTP_PORT', 0))
+from jogger.settings import (
+    SMTP_HOST,
+    SMTP_PORT,
+    SMTP_USER,
+)
+
+MAIL_HOST = SMTP_HOST
+MAIL_FROM = '{}@{}'.format(MAIL_HOST, SMTP_USER)
+MAIL_PORT = SMTP_PORT
 
 
 class Limits:
