@@ -7,7 +7,7 @@ from django.conf import settings
 
 MAIL_HOST = os.getenv('SMTP_HOST')
 MAIL_FROM = '{}@{}'.format(MAIL_HOST, os.getenv('SMTP_USER'))
-MAIL_PORT = int(os.getenv('SMTP_PORT'))
+MAIL_PORT = int(os.getenv('SMTP_PORT', 0))
 
 
 class Limits:
