@@ -13,7 +13,7 @@ load_dotenv(verbose=True, dotenv_path='.env')
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 SECRET_KEY = os.getenv('SECRET')
-DEBUG = int(os.getenv('DEBUG'))
+DEBUG = int(os.getenv('DEBUG') or False)
 
 ALLOWED_HOSTS = []
 
