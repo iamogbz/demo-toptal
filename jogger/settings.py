@@ -69,8 +69,8 @@ WSGI_APPLICATION = 'jogger.wsgi.application'
 
 
 # Database
-DB_NAME = 'db.sqlite3.'+os.getenv('DB_NAME')
-DB_TEST = 'db.sqlite3.'+os.getenv('DB_TEST')
+DB_NAME = 'db.sqlite3.'+os.getenv('DB_NAME', 'app')
+DB_TEST = 'db.sqlite3.'+os.getenv('DB_TEST', 'test')
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
