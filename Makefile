@@ -9,9 +9,13 @@ help:
 install:
 	@pip install -r requirements.txt
 
+.PHONY: smtpd
+smtpd:
+	@python -m smtpd -n -c DebuggingServer localhost:1025
+
 .PHONY: tests
 tests:
-	@ ./manage.py test
+	@./manage.py test
 
 .PHONY: coverage
 coverage:
