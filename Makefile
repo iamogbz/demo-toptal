@@ -11,7 +11,7 @@ install:
 
 .PHONY: tests
 tests:
-	@export ./manage.py test
+	@ ./manage.py test
 
 .PHONY: coverage
 coverage:
