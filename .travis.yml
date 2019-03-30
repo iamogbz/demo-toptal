@@ -5,6 +5,7 @@ python:
 install:
   - make install
 script:
+  - make smtpd &
   - make coverage
   - coverage xml
   - coveralls
