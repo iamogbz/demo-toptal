@@ -1,15 +1,9 @@
 """
 Api permissions module
 """
-from rest_framework.permissions import (
-    BasePermission,
-    SAFE_METHODS,
-)
+from rest_framework.permissions import BasePermission, SAFE_METHODS
 
-from api import (
-    models,
-    views,
-)
+from api import models, views
 
 
 class JoggerPermissions(BasePermission):

@@ -4,10 +4,7 @@ Test permission module
 from unittest.mock import MagicMock
 from django.test import SimpleTestCase
 
-from api import (
-    models,
-    views,
-)
+from api import models, views
 from api.constants import Methods
 from api.permissions import JoggerPermissions
 

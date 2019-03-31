@@ -5,25 +5,25 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('api', '0001_initial'),
-    ]
+    dependencies = [("api", "0001_initial")]
 
     operations = [
         migrations.AlterModelOptions(
-            name='account',
-            options={'permissions': (('read_account', 'Can view account'), ('manage_account', 'Can manage account'))},
+            name="account",
+            options={
+                "permissions": (
+                    ("read_account", "Can view account"),
+                    ("manage_account", "Can manage account"),
+                )
+            },
         ),
         migrations.AlterModelOptions(
-            name='auth',
-            options={'permissions': (('read_auth', 'Can view auth'),)},
+            name="auth", options={"permissions": (("read_auth", "Can view auth"),)}
         ),
         migrations.AlterModelOptions(
-            name='scope',
-            options={'permissions': (('read_scope', 'Can view scope'),)},
+            name="scope", options={"permissions": (("read_scope", "Can view scope"),)}
         ),
         migrations.AlterModelOptions(
-            name='trip',
-            options={'permissions': (('read_trip', 'Can view trip'),)},
+            name="trip", options={"permissions": (("read_trip", "Can view trip"),)}
         ),
     ]

@@ -5,10 +5,7 @@ import re
 import smtplib
 from email.mime.text import MIMEText
 
-from api.constants import (
-    MAIL_HOST,
-    MAIL_PORT,
-)
+from api.constants import MAIL_HOST, MAIL_PORT
 
 
 def peek(bucket):
@@ -49,8 +46,8 @@ def replace(string, replxs):
     :rtype: str
     """
     substrs = sorted(replxs, key=len, reverse=True)
-    regexp = re.compile('|'.join(map(re.escape, substrs)))
-    return regexp.sub(lambda match: replxs.get(match.group(0), ''), string)
+    regexp = re.compile("|".join(map(re.escape, substrs)))
+    return regexp.sub(lambda match: replxs.get(match.group(0), ""), string)
 
 
 def send_mail(sender, recievers, subject, tmpl_file, tmpl_data):
@@ -62,12 +59,12 @@ def send_mail(sender, recievers, subject, tmpl_file, tmpl_data):
     :param str tmpl_file: file path to use as email body template
     :param dict tmpl_data: keys to string replacement for email template
     """
-    with open(tmpl_file, 'r') as fstream:
+    with open(tmpl_file, "r") as fstream:
         msg = MIMEText(fstream.read())
     msg.preamble = subject
-    msg['Subject'] = subject
-    msg['From'] = sender
-    msg['To'] = ', '.join(recievers)
+    msg["Subject"] = subject
+    msg["From"] = sender
+    msg["To"] = ", ".join(recievers)
     msg = replace(msg.as_string(), tmpl_data)
 
     smtp = smtplib.SMTP(MAIL_HOST, MAIL_PORT)

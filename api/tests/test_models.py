@@ -5,13 +5,7 @@ from django.test import TestCase
 from django.utils.crypto import get_random_string
 
 from api.constants import PermissionCodes
-from api.models import (
-    Scope,
-    Permission,
-    Auth,
-    Account,
-    Trip,
-)
+from api.models import Scope, Permission, Auth, Account, Trip
 from api.tests import FixturesMixin
 
 
@@ -26,8 +20,7 @@ class ScopeTest(FixturesMixin, TestCase):
         """
         scope = Scope.objects.first()
         self.assertEqual(
-            Scope.objects.first().description,
-            Permission.objects.get(pk=scope.id).name,
+            Scope.objects.first().description, Permission.objects.get(pk=scope.id).name
         )
 
 
@@ -40,9 +33,7 @@ class AuthTest(FixturesMixin, TestCase):
         """
         Test that auth can be activated only once
         """
-        auth = Auth.objects.create(
-            user_id=3, owner_id=2,
-            code=get_random_string(16))
+        auth = Auth.objects.create(user_id=3, owner_id=2, code=get_random_string(16))
         self.assertFalse(auth.active)
         self.assertIsNotNone(auth.code)
 
@@ -121,8 +112,6 @@ class TripTest(FixturesMixin, TestCase):
         trip_time = 1800
         trip_distance = 10000
         trip = Trip.objects.create(
-            account=account,
-            length_time=trip_time,
-            length_distance=trip_distance,
+            account=account, length_time=trip_time, length_distance=trip_distance
         )
         self.assertEqual(trip.date_created, trip.date_updated)
