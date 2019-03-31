@@ -6,7 +6,7 @@ from django.utils.crypto import get_random_string
 
 from api.constants import PermissionCodes
 from api.models import Scope, Permission, Auth, Account, Trip
-from api.tests import FixturesMixin
+from api.tests import FixturesMixin, AccountMixin
 
 
 class ScopeTest(FixturesMixin, TestCase):
@@ -24,7 +24,7 @@ class ScopeTest(FixturesMixin, TestCase):
         )
 
 
-class AuthTest(FixturesMixin, TestCase):
+class AuthTest(AccountMixin, TestCase):
     """
     Test auth model
     """
@@ -56,8 +56,21 @@ class AuthTest(FixturesMixin, TestCase):
         """
         Test auth scope flatten function
         """
-        pancake = Auth.flatten_scopes([0, 23, 27, 27, 35, 420])
-        self.assertSetEqual(pancake, {23, 26, 27, 35})
+        implicit = [PermissionCodes.Account.MANAGE, PermissionCodes.Account.CREATE]
+        explicit = implicit.copy()
+        explicit.extend(
+            [
+                PermissionCodes.Account.VIEW,
+                PermissionCodes.Trip.VIEW,
+                PermissionCodes.Trip.CREATE,
+                PermissionCodes.Trip.EDIT,
+                PermissionCodes.Trip.DELETE,
+            ]
+        )
+        implicit_ids = [Scope.objects.get(codename=scope).id for scope in explicit]
+        explicit_ids = {Scope.objects.get(codename=scope).id for scope in explicit}
+        pancake = Auth.flatten_scopes([0, 420] + implicit_ids)
+        self.assertSetEqual(pancake, explicit_ids)
 
     def test_scope_granted_includes(self):
         """
@@ -71,7 +84,7 @@ class AuthTest(FixturesMixin, TestCase):
         self.assertIn(vwscope.id, auth.granted)
 
 
-class AccountTest(FixturesMixin, TestCase):
+class AccountTest(AccountMixin, TestCase):
     """
     Test account model
     """

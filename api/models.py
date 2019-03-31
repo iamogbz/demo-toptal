@@ -19,9 +19,21 @@ class Scope(Permission):
         """
         Create all scopes from permission codes
         """
-        for permission_class in PermissionCodes.__subclasses__():
-            for permission_code in permission_class.__dir__.values():
-                cls.objects.get_or_create(codename=permission_code)
+        permission_classes = [
+            PermissionCodes.Account,
+            PermissionCodes.Auth,
+            PermissionCodes.Scope,
+            PermissionCodes.Trip,
+        ]
+        permission_attrs = ["CREATE", "VIEW", "EDIT", "DELETE", "MANAGE"]
+        for permission_cls in permission_classes:
+            cls_dict = vars(permission_cls)
+            for attr in permission_attrs:
+                permission_code = cls_dict.get(attr)
+                if not permission_code:
+                    continue
+                permission = Permission.objects.get(codename=permission_code)
+                cls(permission_ptr=permission).save_base(raw=True)
 
     @property
     def description(self):
@@ -35,7 +47,9 @@ class Scope(Permission):
         """
         Get all scopes that this implicitly includes
         """
-        return Scope.objects.filter(codename__in=PermissionCodes.graph[self.codename])
+        return Scope.objects.filter(
+            codename__in=PermissionCodes.graph.get(self.codename, [])
+        )
 
 
 class Account(User):
@@ -76,7 +90,7 @@ class Account(User):
         """
         Scope used for managing user accounts
         """
-        return Permission.objects.get(codename=PermissionCodes.Account.MANAGE)
+        return Scope.objects.get(codename=PermissionCodes.Account.MANAGE)
 
     @property
     def managers(self):
@@ -117,7 +131,7 @@ class Auth(models.Model):
     )
     code = models.TextField(null=True)
     active = models.BooleanField(default=False)
-    scopes = models.ManyToManyField(Permission, related_name="auths")
+    scopes = models.ManyToManyField(Scope, related_name="auths")
     date_created = models.DateField(auto_now_add=True)
 
     @property

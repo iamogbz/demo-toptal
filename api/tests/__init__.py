@@ -10,12 +10,10 @@ class FixturesMixin:
     Fixture test to load data
     """
 
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        Scope.create_all()
-
     fixtures = ["initial_data_api.json"]
+
+    def setUp(self):
+        Scope.create_all()
 
 
 class AccountMixin(FixturesMixin):
@@ -27,10 +25,11 @@ class AccountMixin(FixturesMixin):
     user = Account.objects.get(pk=3)
     mgr = Account.objects.get(pk=2)
 
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        manage_scope = Scope.object.get(codename=PermissionCodes.Account.MANAGE)
-        Auth.objects.create(user=3, owner=2, scopes=[manage_scope])
-        Auth.objects.create(user=3, owner=2, scopes=[manage_scope])
-        Auth.objects.create(user=3, owner=2, scopes=[manage_scope], active=True)
+    def setUp(self):
+        super().setUp()
+        manage_scope = Scope.objects.get(codename=PermissionCodes.Account.MANAGE)
+        for i in range(3):
+            auth_obj = Auth.objects.create(user=self.user, owner=self.mgr)
+            auth_obj.active = i == 0
+            auth_obj.scopes.set([manage_scope])
+            auth_obj.save()
