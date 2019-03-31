@@ -67,7 +67,7 @@ class AuthTest(AccountMixin, TestCase):
                 PermissionCodes.Trip.DELETE,
             ]
         )
-        implicit_ids = [Scope.objects.get(codename=scope).id for scope in explicit]
+        implicit_ids = [Scope.objects.get(codename=scope).id for scope in implicit]
         explicit_ids = {Scope.objects.get(codename=scope).id for scope in explicit}
         pancake = Auth.flatten_scopes([0, 420] + implicit_ids)
         self.assertSetEqual(pancake, explicit_ids)
