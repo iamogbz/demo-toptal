@@ -13,6 +13,7 @@ class FixturesMixin:
     fixtures = ["initial_data_api.json"]
 
     def setUp(self):
+        super(FixturesMixin, self).setUp()
         Scope.create_all()
 
 
@@ -26,7 +27,7 @@ class AccountMixin(FixturesMixin):
     mgr = Account.objects.get(pk=2)
 
     def setUp(self):
-        super().setUp()
+        super(AccountMixin, self).setUp()
         manage_scope = Scope.objects.get(codename=PermissionCodes.Account.MANAGE)
         for i in range(3):
             auth_obj = Auth.objects.create(user=self.user, owner=self.mgr)
