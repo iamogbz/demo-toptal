@@ -9,6 +9,11 @@ help:
 install:
 	@pip install -r requirements.txt
 
+.PHONY: database
+database:
+	@./manage.py migrate
+	@./manage.py loaddata api/fixtures/initial_data_api.json
+
 .PHONY: smtpd
 smtpd:
 	@python -m smtpd -n -c DebuggingServer localhost:1025
