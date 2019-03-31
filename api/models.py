@@ -1,14 +1,8 @@
 """
 Jogger api model definitions
 """
-from django.contrib.auth.hashers import (
-    check_password,
-    make_password,
-)
-from django.contrib.auth.models import (
-    User,
-    Permission,
-)
+from django.contrib.auth.hashers import check_password, make_password
+from django.contrib.auth.models import User, Permission
 from django.core.validators import MinValueValidator
 from django.db import models
 
@@ -19,6 +13,7 @@ class Scope(Permission):
     """
     Authorisation scopes
     """
+
     @property
     def description(self):
         """
@@ -29,15 +24,14 @@ class Scope(Permission):
     includes = models.ManyToManyField("self", symmetrical=False, blank=True)
 
     class Meta:
-        permissions = (
-            (PermissionCodes.Scope.VIEW, "Can view scope"),
-        )
+        permissions = ((PermissionCodes.Scope.VIEW, "Can view scope"),)
 
 
 class Account(User):
     """
     User account model
     """
+
     reset_code = models.TextField(null=True)
 
     def set_reset_code(self, plain_code, save=False):
@@ -71,9 +65,7 @@ class Account(User):
         """
         Scope used for managing user accounts
         """
-        return Scope.objects.get(
-            codename=PermissionCodes.Account.MANAGE,
-        )
+        return Scope.objects.get(codename=PermissionCodes.Account.MANAGE)
 
     @property
     def managers(self):
@@ -81,10 +73,9 @@ class Account(User):
         List of accounts managing this user
         """
         mgr_scope = self.get_manage_scope()
-        return {auth.owner.id for auth in mgr_scope.auths.filter(
-            user=self,
-            active=True,
-        )}
+        return {
+            auth.owner.id for auth in mgr_scope.auths.filter(user=self, active=True)
+        }
 
     @property
     def managing(self):
@@ -92,10 +83,9 @@ class Account(User):
         List of accounts this user manages
         """
         mgr_scope = self.get_manage_scope()
-        return {auth.user.id for auth in mgr_scope.auths.filter(
-            owner=self,
-            active=True,
-        )}
+        return {
+            auth.user.id for auth in mgr_scope.auths.filter(owner=self, active=True)
+        }
 
     class Meta:
         permissions = (
@@ -110,20 +100,16 @@ class Auth(models.Model):
     :property user: Account authorisation is granting access
     :property owner: Account this authorithy is granted to
     """
+
     user = models.ForeignKey(
-        Account,
-        on_delete=models.CASCADE,
-        related_name="authorised",
+        Account, on_delete=models.CASCADE, related_name="authorised"
     )
     owner = models.ForeignKey(
-        Account,
-        null=True,
-        on_delete=models.SET_NULL,
-        related_name="authorities",
+        Account, null=True, on_delete=models.SET_NULL, related_name="authorities"
     )
     code = models.TextField(null=True)
     active = models.BooleanField(default=False)
-    scopes = models.ManyToManyField(Scope, related_name='auths')
+    scopes = models.ManyToManyField(Scope, related_name="auths")
     date_created = models.DateField(auto_now_add=True)
 
     @property
@@ -131,7 +117,7 @@ class Auth(models.Model):
         """
         All scopes implicitly granted to this authorisation
         """
-        return Auth.flatten_scopes(self.scopes.values_list('id', flat=True))
+        return Auth.flatten_scopes(self.scopes.values_list("id", flat=True))
 
     def activate(self):
         """
@@ -141,7 +127,7 @@ class Auth(models.Model):
         if self.code:
             self.code = None
             self.active = True
-            self.save(update_fields=['code', 'active'])
+            self.save(update_fields=["code", "active"])
 
     def deactivate(self):
         """
@@ -149,7 +135,7 @@ class Auth(models.Model):
         """
         self.code = None
         self.active = False
-        self.save(update_fields=['code', 'active'])
+        self.save(update_fields=["code", "active"])
 
     @staticmethod
     def flatten_scopes(scope_ids):
@@ -165,15 +151,13 @@ class Auth(models.Model):
                 try:
                     scope = Scope.objects.get(pk=sid)
                     pancake.add(sid)
-                    queue.update(scope.includes.values_list('id', flat=True))
+                    queue.update(scope.includes.values_list("id", flat=True))
                 except Scope.DoesNotExist:
                     pass
         return pancake
 
     class Meta:
-        permissions = (
-            (PermissionCodes.Auth.VIEW, "Can view auth"),
-        )
+        permissions = ((PermissionCodes.Auth.VIEW, "Can view auth"),)
 
 
 class Trip(models.Model):
@@ -185,15 +169,14 @@ class Trip(models.Model):
     :param length_distance: total distance of trip in metres
     :param date_updated: timestamp of last edit made
     """
-    account = models.ForeignKey(
-        Account, on_delete=models.CASCADE, related_name='trips')
+
+    account = models.ForeignKey(Account, on_delete=models.CASCADE, related_name="trips")
     date_created = models.DateField(auto_now_add=True)
     length_time = models.PositiveIntegerField(validators=[MinValueValidator(0)])
     length_distance = models.PositiveIntegerField(
-        default=0, validators=[MinValueValidator(0)])
+        default=0, validators=[MinValueValidator(0)]
+    )
     date_updated = models.DateField(auto_now=True)
 
     class Meta:
-        permissions = (
-            (PermissionCodes.Trip.VIEW, "Can view trip"),
-        )
+        permissions = ((PermissionCodes.Trip.VIEW, "Can view trip"),)

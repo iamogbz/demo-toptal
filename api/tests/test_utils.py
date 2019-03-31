@@ -7,13 +7,7 @@ from django.test import SimpleTestCase
 from django.utils.crypto import get_random_string
 from rest_framework.exceptions import APIException
 
-from api.utils import (
-    has_required,
-    peek,
-    raise_api_exc,
-    replace,
-    send_mail,
-)
+from api.utils import has_required, peek, raise_api_exc, replace, send_mail
 
 
 class UtilsTest(SimpleTestCase):
@@ -53,32 +47,29 @@ class UtilsTest(SimpleTestCase):
         """
         str_to_replace = "please replace me with nice things"
         replace_map = {
-            'please': 'bloody',
-            'replace': 'please',
-            'bloody': 'whyyy!!!',
-            'things': 'flowers',
+            "please": "bloody",
+            "replace": "please",
+            "bloody": "whyyy!!!",
+            "things": "flowers",
         }
         result = replace(str_to_replace, replace_map)
-        self.assertEqual(result, 'bloody please me with nice flowers')
+        self.assertEqual(result, "bloody please me with nice flowers")
 
-    @patch('api.utils.replace', autospec=True)
+    @patch("api.utils.replace", autospec=True)
     def test_send_mail_(self, mock_replace):
         """
         Test mail sending function
         """
-        sender = 'mailsender@example.com'
-        receivers = [
-            'longreciever@example.com',
-            'shortreceiver@example.com',
-        ]
-        subject = 'this is a subject'
-        message = MIMEText('')
+        sender = "mailsender@example.com"
+        receivers = ["longreciever@example.com", "shortreceiver@example.com"]
+        subject = "this is a subject"
+        message = MIMEText("")
         message.preamble = subject
-        message['Subject'] = subject
-        message['From'] = sender
-        message['To'] = ', '.join(receivers)
+        message["Subject"] = subject
+        message["From"] = sender
+        message["To"] = ", ".join(receivers)
         mock_replace.return_value = message.as_string()
-        message_data = {'test': 'me'}
-        res = send_mail(sender, receivers, subject, '/dev/null', message_data)
+        message_data = {"test": "me"}
+        res = send_mail(sender, receivers, subject, "/dev/null", message_data)
         mock_replace.assert_called_with(message.as_string(), message_data)
         self.assertIsNotNone(res)

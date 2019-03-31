@@ -23,14 +23,14 @@ class SettingsTest(TestCase):
         """
         Test dot env loaded enviroment settings
         """
-        self.assert_string(os.getenv('SECRET'), 32)
-        debug_flag = int(os.getenv('DEBUG'))
+        self.assert_string(os.getenv("SECRET"), 32)
+        debug_flag = int(os.getenv("DEBUG"))
         self.assertIsNotNone(debug_flag)
 
-        self.assert_string(os.getenv('DB_NAME'), 1)
-        self.assert_string(os.getenv('DB_TEST'), 1)
-        self.assert_string(os.getenv('SMTP_HOST'), 1)
+        self.assert_string(os.getenv("DB_NAME"), 1)
+        self.assert_string(os.getenv("DB_TEST"), 1)
+        self.assert_string(os.getenv("SMTP_HOST"), 1)
 
-        smtp_port = int(os.getenv('SMTP_PORT'))
+        smtp_port = int(os.getenv("SMTP_PORT"))
         self.assertIsNotNone(smtp_port)
-        self.assert_string(os.getenv('SMTP_USER'), 1)
+        self.assert_string(os.getenv("SMTP_USER"), 1)

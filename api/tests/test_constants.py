@@ -3,9 +3,7 @@ Test values defined in constants module
 """
 from django.test import SimpleTestCase
 
-from api.constants import (
-    Limits,
-)
+from api.constants import Limits
 
 
 class ConstantsTest(SimpleTestCase):
