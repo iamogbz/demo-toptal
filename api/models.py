@@ -14,6 +14,15 @@ class Scope(Permission):
     Authorisation scopes
     """
 
+    @classmethod
+    def create_all(cls):
+        """
+        Create all scopes from permission codes
+        """
+        for permission_class in PermissionCodes.__subclasses__():
+            for permission_code in permission_class.__dir__.values():
+                cls.objects.get_or_create(codename=permission_code)
+
     @property
     def description(self):
         """
@@ -21,10 +30,12 @@ class Scope(Permission):
         """
         return self.name
 
-    includes = models.ManyToManyField("self", symmetrical=False, blank=True)
-
-    class Meta:
-        permissions = ((PermissionCodes.Scope.VIEW, "Can view scope"),)
+    @property
+    def includes(self):
+        """
+        Get all scopes that this implicitly includes
+        """
+        return Scope.objects.filter(codename__in=PermissionCodes.graph[self.codename])
 
 
 class Account(User):
@@ -50,7 +61,7 @@ class Account(User):
         :param plain_code: the plain text reset code to check
         :returns bool: True if the reset code match
         """
-        return check_password(plain_code, self.reset_code)
+        return check_password(plain_code, self.reset_code or "")
 
     def clear_reset_code(self, save=False):
         """
@@ -65,7 +76,7 @@ class Account(User):
         """
         Scope used for managing user accounts
         """
-        return Scope.objects.get(codename=PermissionCodes.Account.MANAGE)
+        return Permission.objects.get(codename=PermissionCodes.Account.MANAGE)
 
     @property
     def managers(self):
@@ -88,10 +99,7 @@ class Account(User):
         }
 
     class Meta:
-        permissions = (
-            (PermissionCodes.Account.VIEW, "Can view account"),
-            (PermissionCodes.Account.MANAGE, "Can manage account"),
-        )
+        permissions = ((PermissionCodes.Account.MANAGE, "Can manage account"),)
 
 
 class Auth(models.Model):
@@ -109,7 +117,7 @@ class Auth(models.Model):
     )
     code = models.TextField(null=True)
     active = models.BooleanField(default=False)
-    scopes = models.ManyToManyField(Scope, related_name="auths")
+    scopes = models.ManyToManyField(Permission, related_name="auths")
     date_created = models.DateField(auto_now_add=True)
 
     @property
@@ -156,9 +164,6 @@ class Auth(models.Model):
                     pass
         return pancake
 
-    class Meta:
-        permissions = ((PermissionCodes.Auth.VIEW, "Can view auth"),)
-
 
 class Trip(models.Model):
     """
@@ -177,6 +182,3 @@ class Trip(models.Model):
         default=0, validators=[MinValueValidator(0)]
     )
     date_updated = models.DateField(auto_now=True)
-
-    class Meta:
-        permissions = ((PermissionCodes.Trip.VIEW, "Can view trip"),)

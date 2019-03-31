@@ -43,9 +43,9 @@ class PermissionCodes:
         Account permissions
         """
 
-        VIEW = "read_account"
+        VIEW = "view_account"
         EDIT = "change_account"
-        CREATE = "create_account"
+        CREATE = "add_account"
         DELETE = "delete_account"
         MANAGE = "manage_account"
 
@@ -54,9 +54,9 @@ class PermissionCodes:
         Authorisation permissions
         """
 
-        VIEW = "read_auth"
+        VIEW = "view_auth"
         EDIT = "change_auth"
-        CREATE = "create_auth"
+        CREATE = "add_auth"
         DELETE = "delete_auth"
 
     class Scope:
@@ -64,9 +64,9 @@ class PermissionCodes:
         Scope permissions
         """
 
-        VIEW = "read_scope"
+        VIEW = "view_scope"
         EDIT = "change_scope"
-        CREATE = "create_scope"
+        CREATE = "add_scope"
         DELETE = "delete_scope"
 
     class Trip:
@@ -74,10 +74,18 @@ class PermissionCodes:
         Trip permissions
         """
 
-        VIEW = "read_trip"
+        VIEW = "view_trip"
         EDIT = "change_trip"
-        CREATE = "create_trip"
+        CREATE = "add_trip"
         DELETE = "delete_trip"
+
+    graph = {
+        Account.MANAGE: [Account.VIEW, Trip.CREATE, Trip.EDIT, Trip.DELETE],
+        Auth.EDIT: [Auth.VIEW],
+        Auth.DELETE: [Auth.VIEW],
+        Trip.EDIT: [Trip.VIEW],
+        Trip.DELETE: [Trip.VIEW],
+    }
 
 
 class Templates:

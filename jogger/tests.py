@@ -30,7 +30,7 @@ class SettingsTest(TestCase):
 
     def test_environment(self):
         """
-        Test dot env loaded enviroment settings
+        Test loaded enviroment settings
         """
         self.assert_string(SECRET_KEY, 32)
         self.assertIsNotNone(DEBUG)
