@@ -14,6 +14,27 @@ class Scope(Permission):
     Authorisation scopes
     """
 
+    @classmethod
+    def create_all(cls):
+        """
+        Create all scopes from permission codes
+        """
+        permission_classes = [
+            PermissionCodes.Account,
+            PermissionCodes.Auth,
+            PermissionCodes.Scope,
+            PermissionCodes.Trip,
+        ]
+        permission_attrs = ["CREATE", "VIEW", "EDIT", "DELETE", "MANAGE"]
+        for permission_cls in permission_classes:
+            cls_dict = vars(permission_cls)
+            for attr in permission_attrs:
+                permission_code = cls_dict.get(attr)
+                if not permission_code:
+                    continue
+                permission = Permission.objects.get(codename=permission_code)
+                cls(permission_ptr=permission).save_base(raw=True)
+
     @property
     def description(self):
         """
@@ -21,10 +42,14 @@ class Scope(Permission):
         """
         return self.name
 
-    includes = models.ManyToManyField("self", symmetrical=False, blank=True)
-
-    class Meta:
-        permissions = ((PermissionCodes.Scope.VIEW, "Can view scope"),)
+    @property
+    def includes(self):
+        """
+        Get all scopes that this implicitly includes
+        """
+        return Scope.objects.filter(
+            codename__in=PermissionCodes.graph.get(self.codename, [])
+        )
 
 
 class Account(User):
@@ -50,7 +75,7 @@ class Account(User):
         :param plain_code: the plain text reset code to check
         :returns bool: True if the reset code match
         """
-        return check_password(plain_code, self.reset_code)
+        return check_password(plain_code, self.reset_code or "")
 
     def clear_reset_code(self, save=False):
         """
@@ -88,10 +113,7 @@ class Account(User):
         }
 
     class Meta:
-        permissions = (
-            (PermissionCodes.Account.VIEW, "Can view account"),
-            (PermissionCodes.Account.MANAGE, "Can manage account"),
-        )
+        permissions = ((PermissionCodes.Account.MANAGE, "Can manage account"),)
 
 
 class Auth(models.Model):
@@ -156,9 +178,6 @@ class Auth(models.Model):
                     pass
         return pancake
 
-    class Meta:
-        permissions = ((PermissionCodes.Auth.VIEW, "Can view auth"),)
-
 
 class Trip(models.Model):
     """
@@ -177,6 +196,3 @@ class Trip(models.Model):
         default=0, validators=[MinValueValidator(0)]
     )
     date_updated = models.DateField(auto_now=True)
-
-    class Meta:
-        permissions = ((PermissionCodes.Trip.VIEW, "Can view trip"),)

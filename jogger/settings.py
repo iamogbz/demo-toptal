@@ -13,7 +13,7 @@ load_dotenv(verbose=True, dotenv_path=".env")
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 SECRET_KEY = os.getenv("SECRET")
-DEBUG = int(os.getenv("DEBUG"))
+DEBUG = int(os.getenv("DEBUG") or False)
 
 ALLOWED_HOSTS = []
 
@@ -67,8 +67,8 @@ WSGI_APPLICATION = "jogger.wsgi.application"
 
 
 # Database
-DB_NAME = "db.sqlite3." + os.getenv("DB_NAME")
-DB_TEST = "db.sqlite3." + os.getenv("DB_TEST")
+DB_NAME = "db.sqlite3." + os.getenv("DB_NAME", "app")
+DB_TEST = "db.sqlite3." + os.getenv("DB_TEST", "test")
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
@@ -78,6 +78,11 @@ DATABASES = {
         "TEST": {"NAME": os.path.join(BASE_DIR, DB_TEST)},
     }
 }
+
+# SMTP
+SMTP_HOST = os.getenv("SMTP_HOST", "")
+SMTP_PORT = int(os.getenv("SMTP_PORT", "0"))
+SMTP_USER = os.getenv("SMTP_USER", "")
 
 
 # Password validation

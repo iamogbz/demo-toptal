@@ -11,6 +11,12 @@ class ScopeSerializer(serializers.ModelSerializer):
     Authorisation scope serializer
     """
 
+    includes = serializers.SerializerMethodField()
+
+    @staticmethod
+    def get_includes(obj):
+        return [ScopeSerializer(scope).data for scope in obj.includes]
+
     class Meta:
         model = models.Scope
         fields = ("id", "name", "codename", "includes")

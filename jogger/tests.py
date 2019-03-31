@@ -1,8 +1,17 @@
 """
 Test jogger app module
 """
-import os
 from django.test import TestCase
+
+from jogger.settings import (
+    DB_NAME,
+    DB_TEST,
+    DEBUG,
+    SECRET_KEY,
+    SMTP_HOST,
+    SMTP_PORT,
+    SMTP_USER,
+)
 
 
 class SettingsTest(TestCase):
@@ -21,16 +30,13 @@ class SettingsTest(TestCase):
 
     def test_environment(self):
         """
-        Test dot env loaded enviroment settings
+        Test loaded enviroment settings
         """
-        self.assert_string(os.getenv("SECRET"), 32)
-        debug_flag = int(os.getenv("DEBUG"))
-        self.assertIsNotNone(debug_flag)
+        self.assert_string(SECRET_KEY, 32)
+        self.assertIsNotNone(DEBUG)
 
-        self.assert_string(os.getenv("DB_NAME"), 1)
-        self.assert_string(os.getenv("DB_TEST"), 1)
-        self.assert_string(os.getenv("SMTP_HOST"), 1)
-
-        smtp_port = int(os.getenv("SMTP_PORT"))
-        self.assertIsNotNone(smtp_port)
-        self.assert_string(os.getenv("SMTP_USER"), 1)
+        self.assert_string(DB_NAME, 1)
+        self.assert_string(DB_TEST, 1)
+        self.assert_string(SMTP_HOST, 1)
+        self.assertIsNotNone(SMTP_PORT)
+        self.assert_string(SMTP_USER, 1)

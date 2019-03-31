@@ -15,26 +15,6 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name="Scope",
-            fields=[
-                (
-                    "permission_ptr",
-                    models.OneToOneField(
-                        auto_created=True,
-                        on_delete=models.deletion.CASCADE,
-                        parent_link=True,
-                        primary_key=True,
-                        serialize=False,
-                        to="auth.Permission",
-                    ),
-                ),
-                ("includes", models.ManyToManyField(blank=True, to="api.Scope")),
-            ],
-            options={"permissions": (("view_scope", "Can view scope"),)},
-            bases=("auth.permission",),
-            managers=[("objects", django.contrib.auth.models.PermissionManager())],
-        ),
-        migrations.CreateModel(
             name="Account",
             fields=[
                 (
@@ -50,12 +30,7 @@ class Migration(migrations.Migration):
                 ),
                 ("reset_code", models.TextField(null=True)),
             ],
-            options={
-                "permissions": (
-                    ("view_account", "Can view account"),
-                    ("manage_account", "Can manage account"),
-                )
-            },
+            options={"permissions": (("manage_account", "Can manage account"),)},
             bases=("auth.user",),
             managers=[("objects", django.contrib.auth.models.UserManager())],
         ),
@@ -75,14 +50,6 @@ class Migration(migrations.Migration):
                 ("active", models.BooleanField(default=False)),
                 ("date_created", models.DateField(auto_now_add=True)),
                 (
-                    "user",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE,
-                        related_name="authorised",
-                        to="api.Account",
-                    ),
-                ),
-                (
                     "owner",
                     models.ForeignKey(
                         null=True,
@@ -91,12 +58,25 @@ class Migration(migrations.Migration):
                         to="api.Account",
                     ),
                 ),
-                (
-                    "scopes",
-                    models.ManyToManyField(related_name="auths", to="api.Scope"),
-                ),
             ],
-            options={"permissions": (("view_auth", "Can view auth"),)},
+        ),
+        migrations.CreateModel(
+            name="Scope",
+            fields=[
+                (
+                    "permission_ptr",
+                    models.OneToOneField(
+                        auto_created=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        parent_link=True,
+                        primary_key=True,
+                        serialize=False,
+                        to="auth.Permission",
+                    ),
+                )
+            ],
+            bases=("auth.permission",),
+            managers=[("objects", django.contrib.auth.models.PermissionManager())],
         ),
         migrations.CreateModel(
             name="Trip",
@@ -127,12 +107,25 @@ class Migration(migrations.Migration):
                 (
                     "account",
                     models.ForeignKey(
-                        on_delete=models.deletion.CASCADE,
+                        on_delete=django.db.models.deletion.CASCADE,
                         related_name="trips",
                         to="api.Account",
                     ),
                 ),
             ],
-            options={"permissions": (("view_trip", "Can view trip"),)},
+        ),
+        migrations.AddField(
+            model_name="auth",
+            name="scopes",
+            field=models.ManyToManyField(related_name="auths", to="api.Scope"),
+        ),
+        migrations.AddField(
+            model_name="auth",
+            name="user",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE,
+                related_name="authorised",
+                to="api.Account",
+            ),
         ),
     ]

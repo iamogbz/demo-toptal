@@ -55,8 +55,9 @@ class UtilsTest(SimpleTestCase):
         result = replace(str_to_replace, replace_map)
         self.assertEqual(result, "bloody please me with nice flowers")
 
+    @patch("api.utils.smtplib", autospec=True)
     @patch("api.utils.replace", autospec=True)
-    def test_send_mail_(self, mock_replace):
+    def test_send_mail(self, mock_replace, _):
         """
         Test mail sending function
         """

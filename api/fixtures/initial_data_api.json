@@ -1,68 +1,5 @@
 [
     {
-        "model": "api.scope",
-        "pk": 23,
-        "fields": {
-            "includes": []
-        }
-    },
-    {
-        "model": "api.scope",
-        "pk": 24,
-        "fields": {
-            "includes": [26]
-        }
-    },
-    {
-        "model": "api.scope",
-        "pk": 25,
-        "fields": {
-            "includes": [24]
-        }
-    },
-    {
-        "model": "api.scope",
-        "pk": 27,
-        "fields": {
-            "includes": [26]
-        }
-    },
-    {
-        "model": "api.scope",
-        "pk": 26,
-        "fields": {
-            "includes": []
-        }
-    },
-    {
-        "model": "api.scope",
-        "pk": 32,
-        "fields": {
-            "includes": [35]
-        }
-    },
-    {
-        "model": "api.scope",
-        "pk": 33,
-        "fields": {
-            "includes": [35]
-        }
-    },
-    {
-        "model": "api.scope",
-        "pk": 34,
-        "fields": {
-            "includes": [35]
-        }
-    },
-    {
-        "model": "api.scope",
-        "pk": 35,
-        "fields": {
-            "includes": [26]
-        }
-    },
-    {
         "model": "auth.user",
         "pk": 1,
         "fields": {
@@ -201,42 +138,6 @@
             "length_time": 99,
             "length_distance": 11,
             "date_updated": "2018-05-01"
-        }
-    },
-    {
-        "model": "api.auth",
-        "pk": 1,
-        "fields": {
-            "user": 3,
-            "owner": 2,
-            "code": null,
-            "active": false,
-            "date_created": "2018-04-27",
-            "scopes": [27]
-        }
-    },
-    {
-        "model": "api.auth",
-        "pk": 2,
-        "fields": {
-            "user": 3,
-            "owner": 2,
-            "code": null,
-            "active": false,
-            "date_created": "2018-04-29",
-            "scopes": [27]
-        }
-    },
-    {
-        "model": "api.auth",
-        "pk": 3,
-        "fields": {
-            "user": 3,
-            "owner": 2,
-            "code": null,
-            "active": true,
-            "date_created": "2018-04-29",
-            "scopes": [27]
         }
     }
 ]

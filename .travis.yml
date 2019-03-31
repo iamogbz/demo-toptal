@@ -1,0 +1,12 @@
+language: python
+dist: xenial
+python:
+  - "3.7"
+install:
+  - make install
+before_script:
+  - make database
+script:
+  - make coverage
+  - coverage xml
+  - coveralls
