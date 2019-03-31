@@ -16,7 +16,7 @@ database:
 
 .PHONY: smtpd
 smtpd:
-	@python -m smtpd -n -c DebuggingServer 127.0.0.1:1025
+	@python -m smtpd -n -c DebuggingServer localhost:1025
 
 .PHONY: tests
 tests:
