@@ -4,7 +4,7 @@ python:
   - "3.7"
 install:
   - make install
-after_install:
+before_script:
   - make smtpd &>>email.log &
 script:
   - make database
