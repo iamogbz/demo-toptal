@@ -3,6 +3,7 @@ Test api endpoints
 """
 import json
 
+from unittest.mock import patch
 from django.core.exceptions import ObjectDoesNotExist
 from django.urls import reverse
 from django.utils.crypto import get_random_string
@@ -83,7 +84,8 @@ class AccountViewsTest(AccountMixin, APITestCase):
         response = self.client.post(url, data=data)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-    def test_account_password_reset(self):
+    @patch('api.utils.smtplib', autospec=True)
+    def test_account_password_reset(self, _):
         """
         Test account password reset request
         """
@@ -99,7 +101,8 @@ class AccountViewsTest(AccountMixin, APITestCase):
         acc.refresh_from_db()
         self.assertIsNotNone(acc.reset_code)
 
-    def test_account_reset_confirm(self):
+    @patch('api.utils.smtplib', autospec=True)
+    def test_account_reset_confirm(self, _):
         """
         Test account password reset confirm
         """
@@ -324,7 +327,8 @@ class AccountManagerTest(AccountMixin, APITestCase):
         response = self.client.post(url, data=data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_acc_manager_authorise(self):
+    @patch('api.utils.smtplib', autospec=True)
+    def test_acc_manager_authorise(self, _):
         """
         Test user account request for manager
         """
