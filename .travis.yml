@@ -4,9 +4,10 @@ python:
   - "3.7"
 install:
   - make install
+after_install:
+  - make smtpd &>>email.log &
 script:
   - make database
-  - make smtpd &
   - make coverage
   - coverage xml
   - coveralls
