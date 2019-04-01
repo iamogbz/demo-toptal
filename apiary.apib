@@ -1,80 +1,257 @@
 FORMAT: 1A
-HOST: http://polls.apiblueprint.org/
+HOST: https://jog-jac.com/api
 
 # JogJac
 
-Polls is a simple API allowing consumers to view polls and vote in them.
+The 14 Day Exercise Buddy.
 
-## Questions Collection [/questions]
+## Scopes Collection [/scopes]
 
-### List All Questions [GET]
+### List All Scopes [GET]
 
 + Response 200 (application/json)
 
-        [
-            {
-                "question": "Favourite programming language?",
-                "published_at": "2015-08-05T08:40:51.620Z",
-                "choices": [
-                    {
-                        "choice": "Swift",
-                        "votes": 2048
-                    }, {
-                        "choice": "Python",
-                        "votes": 1024
-                    }, {
-                        "choice": "Objective-C",
-                        "votes": 512
-                    }, {
-                        "choice": "Ruby",
-                        "votes": 256
-                    }
-                ]
-            }
-        ]
-
-### Create a New Question [POST]
-
-You may create your own question using this action. It takes a JSON
-object containing a question and a collection of answers in the
-form of choices.
-
-+ Request (application/json)
-
         {
-            "question": "Favourite programming language?",
-            "choices": [
-                "Swift",
-                "Python",
-                "Objective-C",
-                "Ruby"
+            "count":17,
+            "next":"https://jog-jac.com/api/scopes?format=json&limit=10&offset=10",
+            "previous":null,
+            "results":[
+                {
+                    "id":25,
+                    "name":"Can add account",
+                    "codename":"add_account",
+                    "includes":[]
+                },
+                {
+                    "id":26,
+                    "name":"Can change account",
+                    "codename":"change_account",
+                    "includes":[]
+                },
+                {
+                    "id":27,
+                    "name":"Can delete account",
+                    "codename":"delete_account",
+                    "includes":[]
+                },
+                {
+                    "id":29,
+                    "name":"Can manage account",
+                    "codename":"manage_account",
+                    "includes":[
+                        {
+                            "id":28,
+                            "name":"Can view account",
+                            "codename":"view_account",
+                            "includes":[]
+                        },
+                        {
+                            "id":38,
+                            "name":"Can add trip",
+                            "codename":"add_trip",
+                            "includes":[]
+                        },
+                        {
+                            "id":39,
+                            "name":"Can change trip",
+                            "codename":"change_trip",
+                            "includes":[
+                                {
+                                    "id":41,
+                                    "name":"Can view trip",
+                                    "codename":"view_trip",
+                                    "includes":[]
+                                }
+                            ]
+                        },
+                        {
+                            "id":40,
+                            "name":"Can delete trip",
+                            "codename":"delete_trip",
+                            "includes":[
+                                {
+                                    "id":41,
+                                    "name":"Can view trip",
+                                    "codename":"view_trip",
+                                    "includes":[]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "id":28,
+                    "name":"Can view account",
+                    "codename":"view_account",
+                    "includes":[]
+                },
+                {
+                    "id":30,
+                    "name":"Can add auth",
+                    "codename":"add_auth",
+                    "includes":[]
+                },
+                {
+                    "id":31,
+                    "name":"Can change auth",
+                    "codename":"change_auth",
+                    "includes":[
+                        {
+                            "id":33,
+                            "name":"Can view auth",
+                            "codename":"view_auth",
+                            "includes":[]
+                        }
+                    ]
+                },
+                {
+                    "id":32,
+                    "name":"Can delete auth",
+                    "codename":"delete_auth",
+                    "includes":[
+                        {
+                            "id":33,
+                            "name":"Can view auth",
+                            "codename":"view_auth",
+                            "includes":[]
+                        }
+                    ]
+                },
+                {
+                    "id":33,
+                    "name":"Can view auth",
+                    "codename":"view_auth",
+                    "includes":[]
+                },
+                {
+                    "id":34,
+                    "name":"Can add scope",
+                    "codename":"add_scope",
+                    "includes":[]
+                }
             ]
         }
 
-+ Response 201 (application/json)
+## Accounts Collection [/accounts]
 
-    + Headers
+### List All Accounts [GET]
 
-            Location: /questions/2
++ Response 200 (application/json)
 
-    + Body
+        {
+            "count":3,
+            "next":null,
+            "previous":null,
+            "results":[
+                {
+                    "id":1,
+                    "username":"admin",
+                    "email":"admin@example.com",
+                    "first_name":"",
+                    "last_name":""
+                },
+                {
+                    "id":2,
+                    "username":"testmanager",
+                    "email":"testmanager@example.com",
+                    "first_name":"",
+                    "last_name":""
+                },
+                {
+                    "id":3,
+                    "username":"testuser",
+                    "email":"testuser@example.com",
+                    "first_name":"",
+                    "last_name":""
+                }
+            ]
+        }
 
-            {
-                "question": "Favourite programming language?",
-                "published_at": "2015-08-05T08:40:51.620Z",
-                "choices": [
-                    {
-                        "choice": "Swift",
-                        "votes": 0
-                    }, {
-                        "choice": "Python",
-                        "votes": 0
-                    }, {
-                        "choice": "Objective-C",
-                        "votes": 0
-                    }, {
-                        "choice": "Ruby",
-                        "votes": 0
-                    }
-                ]
-            }
+## Auths Collection [/auths]
+
+### List All Auths [GET]
+
++ Response 200 (application/json)
+
+        {
+            "count":1,
+            "next":null,
+            "previous":null,
+            "results":[
+                {
+                    "id":1,
+                    "code":null,
+                    "user":3,
+                    "owner":2,
+                    "scopes":[
+                        29
+                    ],
+                    "granted":[
+                        38,
+                        39,
+                        40,
+                        41,
+                        28,
+                        29
+                    ],
+                    "active":true,
+                    "date_created":"2018-04-01"
+                }
+            ]
+        }
+
+## Trips Collection [/trips]
+
+### List All Trips [GET]
+
++ Response 200 (application/json)
+
+        {
+            "count": 6,
+            "next": null,
+            "previous": null,
+            "results": [
+                {
+                    "id": 1,
+                    "owner": 3,
+                    "date_created": "2018-04-30",
+                    "length_distance": 12,
+                    "length_time": 100
+                },
+                {
+                    "id": 2,
+                    "owner": 3,
+                    "date_created": "2018-04-30",
+                    "length_distance": 12,
+                    "length_time": 100
+                },
+                {
+                    "id": 3,
+                    "owner": 1,
+                    "date_created": "2018-04-30",
+                    "length_distance": 5,
+                    "length_time": 50
+                },
+                {
+                    "id": 4,
+                    "owner": 2,
+                    "date_created": "2018-04-30",
+                    "length_distance": 5,
+                    "length_time": 60
+                },
+                {
+                    "id": 5,
+                    "owner": 2,
+                    "date_created": "2018-04-30",
+                    "length_distance": 12,
+                    "length_time": 100
+                },
+                {
+                    "id": 6,
+                    "owner": 2,
+                    "date_created": "2018-05-01",
+                    "length_distance": 11,
+                    "length_time": 99
+                }
+            ]
+        }
