@@ -4,5 +4,5 @@ djangorestframework==3.11.0
 django_extensions==3.0.3
 git-pylint-commit-hook==2.5.1
 pylint_django==2.1.0
-coverage==5.2
+coverage==5.2.1
 coveralls==2.1.1
