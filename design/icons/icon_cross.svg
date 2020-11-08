@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="20px" height="20px" viewBox="0 0 20 20" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 49.3 (51167) - http://www.bohemiancoding.com/sketch -->
+    <title>icon_cross</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="icon_cross" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M10,10 L4.375,4.375 L10,10 L4.375,15.625 L10,10 Z M10,10 L15.6499723,4.35002772 L10,10 L15.6499723,15.6499723 L10,10 Z" id="Shape" stroke="#000000" transform="translate(10.000000, 10.000000) rotate(-270.000000) translate(-10.000000, -10.000000) "></path>
+    </g>
+</svg>
