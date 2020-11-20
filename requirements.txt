@@ -5,4 +5,4 @@ django_extensions==3.0.9
 git-pylint-commit-hook==2.5.1
 pylint_django==2.3.0
 coverage==5.3
-coveralls==2.1.2
+coveralls==2.2.0
