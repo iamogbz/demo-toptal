@@ -1,0 +1,25 @@
+name: Build
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - uses: actions/setup-python@v1
+      with:
+        python-version: 3.7
+    - name: Install
+      run: make install
+    - name: Test
+      env:
+        DB_NAME: jogger
+        DB_TEST: jogger.test
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SECRET: ${{ secrets.GH_TOKEN }}
+        SMTP_HOST: localhost
+        SMTP_USER: 1052
+      run: |
+        make database
+        make coverage
+        coverage xml
+        coveralls
