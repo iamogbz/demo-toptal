@@ -1,1 +1,5 @@
-db.sqlite3.jogger*
+__pycache__
+static/
+.coverage
+coverage.xml
+db.sqlite3*

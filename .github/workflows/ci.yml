@@ -16,6 +16,7 @@ jobs:
       run: make install
     - name: Test
       env:
+        CI: 1
         DB_NAME: jogger
         DB_TEST: jogger.test
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -25,5 +26,4 @@ jobs:
       run: |
         make database
         make coverage
-        coverage xml
-        coveralls
+        python -m coveralls --service=github
