@@ -1,3 +1,9 @@
+ifdef CI
+	COVERAGE_OUTPUT=xml
+else
+	COVERAGE_OUTPUT=html
+endif
+
 .PHONY: help
 help:
 	@echo "make help                      - show commands that can be run"
@@ -7,7 +13,7 @@ help:
 
 .PHONY: install
 install:
-	@pip install -r requirements.txt
+	@python -m pip install -r requirements.txt
 
 .PHONY: database
 database:
@@ -24,8 +30,8 @@ tests:
 
 .PHONY: coverage
 coverage:
-	@coverage run --source=. ./manage.py test
-	@coverage html
+	@python -m coverage run --source=. ./manage.py test
+	@python -m coverage $(COVERAGE_OUTPUT)
 
 ifndef VERBOSE
 .SILENT:
