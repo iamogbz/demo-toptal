@@ -19,11 +19,15 @@ jobs:
         CI: 1
         DB_NAME: jogger
         DB_TEST: jogger.test
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        SECRET: ${{ secrets.GH_TOKEN }}
+        SECRET: 'random-test-django-secret-key-string'
         SMTP_HOST: localhost
         SMTP_USER: 1052
       run: |
         make database
         make coverage
+    - name: Report
+      if: github.actor != 'dependabot[bot]' && github.actor != 'dependabot-preview[bot]'
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
         python -m coveralls --service=github
