@@ -1,5 +1,5 @@
 django==3.1.7
-python-dotenv==0.16.0
+python-dotenv==0.17.0
 djangorestframework==3.12.4
 django_extensions==3.1.1
 git-pylint-commit-hook==2.5.1
