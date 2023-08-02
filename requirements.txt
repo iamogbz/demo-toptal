@@ -1,4 +1,4 @@
-django==4.2.3
+django==4.2.4
 python-dotenv==1.0.0
 djangorestframework==3.14.0
 django_extensions==3.2.3
